@@ -1,58 +1,206 @@
 import { useState } from "react"
+import "./Auth.css"
 
 function Cadastro({ onLogin }) {
-    const [nome, setNome] = useState('')
-    const [email, setEmail] = useState('')
-    const [senha, setSenha] = useState('')
+  const [nome, setNome] = useState("")
+  const [email, setEmail] = useState("")
+  const [cpf, setCpf] = useState("")
+  const [telefone, setTelefone] = useState("")
+  const [senha, setSenha] = useState("")
+  const [confirmarSenha, setConfirmarSenha] = useState("")
 
-    function submit(event) {
-        event.preventDefault()
+  function submit(event) {
+    event.preventDefault()
 
-        alert('Cadastro realizado!')
+    if (senha !== confirmarSenha) {
+      alert("As senhas não são iguais!")
+      return
     }
 
-    return (
-        <div className="auth-card">
-            <h1>Criar conta</h1>
-        
-            <p className="auth-subtitle">Cadastre-se para continuar</p>
+    alert("Cadastro realizado!")
+  }
 
-            <form onSubmit={submit}>
-                <label>Nome</label>
+  function formatarCPF(valor) {
+    valor = valor.replace(/\D/g, '')
+    valor = valor.slice(0, 11)
+  
+    valor = valor.replace(/(\d{3})(\d)/, '$1.$2') // escreve 3 números e é colocado 1 .
+    valor = valor.replace(/(\d{3})(\d)/, '$1.$2') // escreve 3 números e é colocado 1 .
+    valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // escreve 3 números e é colocado 1 hífen
+  
+    return valor
+  }
+  
+  function formatarTelefone(valor) {
+    valor = valor.replace(/\D/g, '')
+    valor = valor.slice(0, 11)
+  
+    if (valor.length <= 10) {
+      valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // coloca os dois primeiros números dentro do parênteses
+      valor = valor.replace(/(\d{4})(\d)/, '$1-$2') // depois de colocar 4 números, ele coloca um hífen
+    } else {
+      // caso seja celular
+      valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // pega os 2 primeiros que são o DDD
+      valor = valor.replace(/(\d{5})(\d)/, '$1-$2') // depois do DDD, quando colocar 5 números ele coloca 1 hífen
+    }
+  
+    return valor
+  }
 
-                <input 
-                    type="text"
-                    placeholder="Digite seu nome"
-                    value={nome}
-                    onChange={(event) => setNome(event.target.value)} required
-                />
+  return (
+    <div className="auth-overlay">
+      <div className="auth-card cadastro-card">
 
-                <label>E-mail</label>
+        <div className="auth-header">
+          <div className="logo">
+            <span className="logo-m">M</span>
 
-                <input
-                    type="email"
-                    placeholder="Digite seu e-mail"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)} required
-                />
+            <span className="logo-text">
+              MANTO <span>017</span>
+            </span>
+          </div>
 
-                <input 
-                    type="password"
-                    placeholder="Digite sua senha"
-                    value={senha}
-                    onChange={(event) => setSenha(event.target.value)} required
-                />
-
-                <button type="submit">Criar conta</button>
-            </form>
-
-            <p className="auth-change">Já possui uma conta?</p>
-
-            <button className="#link-button" onClick={onLogin}>
-                Voltar para login
-            </button>
+          <button className="close-button">
+            ×
+          </button>
         </div>
-    )
+
+        <div className="auth-tabs">
+
+          <button
+            className="tab"
+            onClick={onLogin}
+          >
+            Entrar
+          </button>
+
+          <button className="tab active">
+            Criar Conta
+          </button>
+
+        </div>
+
+        <form onSubmit={submit}>
+
+          <div className="form-group">
+            <label>
+              NOME COMPLETO <span>*</span>
+            </label>
+
+            <input
+              type="text"
+              placeholder="João Silva"
+              value={nome}
+              onChange={(event) =>
+                setNome(event.target.value)
+              }
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>
+              E-MAIL <span>*</span>
+            </label>
+
+            <input
+              type="email"
+              placeholder="seu@email.com"
+              value={email}
+              onChange={(event) =>
+                setEmail(event.target.value)
+              }
+              required
+            />
+          </div>
+
+          <div className="form-row">
+
+            <div className="form-group">
+              <label>
+                CPF <span>*</span>
+              </label>
+
+              <input
+                type="text"
+                placeholder="000.000.000-00"
+                value={cpf}
+                onChange={(event) =>
+                  setCpf(formatarCPF(event.target.value))
+                }
+                maxLength={14}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>
+                TELEFONE
+              </label>
+
+              <input
+                type="tel"
+                placeholder="(11) 99999-9999"
+                value={telefone}
+                onChange={(event) =>
+                  setTelefone(formatarTelefone(event.target.value))
+                }
+                maxLength={15}
+              />
+            </div>
+
+          </div>
+
+          <div className="form-group">
+            <label>
+              SENHA <span>*</span>
+            </label>
+
+            <input
+              type="password"
+              placeholder="Mínimo 6 caracteres"
+              value={senha}
+              onChange={(event) =>
+                setSenha(event.target.value)
+              }
+              minLength={6}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>
+              CONFIRMAR SENHA <span>*</span>
+            </label>
+
+            <input
+              type="password"
+              placeholder="Repita a senha"
+              value={confirmarSenha}
+              onChange={(event) =>
+                setConfirmarSenha(event.target.value)
+              }
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="submit-button"
+          >
+            Criar minha conta
+          </button>
+
+        </form>
+
+        <div className="terms">
+          Ao criar uma conta, você concorda com nossos{" "}
+          <span>Termos de Uso.</span>
+        </div>
+
+      </div>
+    </div>
+  )
 }
 
 export default Cadastro
