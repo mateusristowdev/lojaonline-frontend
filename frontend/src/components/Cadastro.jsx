@@ -38,8 +38,7 @@ function Cadastro({ onLogin }) {
     if (valor.length <= 10) {
       valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // coloca os dois primeiros números dentro do parênteses
       valor = valor.replace(/(\d{4})(\d)/, '$1-$2') // depois de colocar 4 números, ele coloca um hífen
-    } else {
-      // caso seja celular
+    } else { // caso seja celular
       valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // pega os 2 primeiros que são o DDD
       valor = valor.replace(/(\d{5})(\d)/, '$1-$2') // depois do DDD, quando colocar 5 números ele coloca 1 hífen
     }

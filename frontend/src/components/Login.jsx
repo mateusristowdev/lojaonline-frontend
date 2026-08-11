@@ -78,14 +78,13 @@ function Login({ onCadastro, onAdmin }) {
             className={modoAdmin ? "tab active admin-tab" : "tab"}
             onClick={entrarComoAdmin}
           >
-            ⚙ Admin
+            Admin
           </button>
 
         </div>
 
         {modoAdmin && (
           <div className="admin-warning">
-            <strong>⚿</strong>
 
             <div>
               <strong>Área restrita.</strong>
@@ -146,7 +145,7 @@ function Login({ onCadastro, onAdmin }) {
             }
           >
             {modoAdmin
-              ? "⚿ Entrar como Admin"
+              ? "Entrar como Admin"
               : "Entrar na conta"}
           </button>
 
