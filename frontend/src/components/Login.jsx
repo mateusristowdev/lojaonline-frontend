@@ -20,20 +20,12 @@ function Login({ onCadastro, onAdmin }) {
     event.preventDefault()
 
     if (modoAdmin) {
-      if (
-        email === "admin@email.com" &&
-        senha === "admin123"
-      ) {
-        alert("Login de administrador realizado!")
+      alert("Login de administrador realizado!")
 
-        if (onAdmin) {
-          onAdmin()
-        }
-
-        return
+      if (onAdmin) {
+        onAdmin()
       }
 
-      alert("E-mail ou senha de administrador incorretos!")
       return
     }
 
@@ -85,7 +77,6 @@ function Login({ onCadastro, onAdmin }) {
 
         {modoAdmin && (
           <div className="admin-warning">
-
             <div>
               <strong>Área restrita.</strong>
               <br />
