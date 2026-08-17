@@ -1,0 +1,113 @@
+.home-page {
+    min-height: 100vh;
+    background: #0b0b0b;
+    color: white;
+  }
+  
+  .home-hero {
+    min-height: 600px;
+  
+    display: flex;
+    align-items: center;
+  
+    padding: 60px 8%;
+  
+    background:
+      linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.95),
+        rgba(0, 0, 0, 0.45)
+      ),
+      #171717;
+  }
+  
+  .home-content {
+    max-width: 600px;
+  }
+  
+  .home-tag {
+    display: inline-block;
+  
+    margin-bottom: 20px;
+  
+    padding: 8px 14px;
+  
+    background: #fbb51c;
+    color: #000;
+  
+    font-size: 13px;
+    font-weight: 800;
+  
+    border-radius: 6px;
+  }
+  
+  .home-content h1 {
+    margin: 0;
+  
+    font-size: 56px;
+    line-height: 1.05;
+    font-weight: 800;
+  }
+  
+  .home-content p {
+    margin: 24px 0;
+  
+    color: #bdbdbd;
+  
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  
+  .home-button {
+    border: none;
+  
+    padding: 16px 28px;
+  
+    background: #fbb51c;
+    color: #000;
+  
+    font-size: 16px;
+    font-weight: 700;
+  
+    border-radius: 8px;
+  
+    cursor: pointer;
+  }
+  
+  .home-button:hover {
+    background: #ffc83d;
+  }
+  
+  .home-welcome {
+    padding: 60px 8%;
+  
+    text-align: center;
+  }
+  
+  .home-welcome h2 {
+    margin-bottom: 15px;
+  
+    font-size: 32px;
+  }
+  
+  .home-welcome p {
+    color: #aaa;
+    margin-bottom: 25px;
+  }
+  
+  .logout-button {
+    border: 1px solid #333;
+  
+    padding: 12px 22px;
+  
+    background: transparent;
+    color: white;
+  
+    border-radius: 6px;
+  
+    cursor: pointer;
+  }
+  
+  .logout-button:hover {
+    background: #222;
+  }

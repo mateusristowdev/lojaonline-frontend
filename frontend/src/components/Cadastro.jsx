@@ -9,6 +9,32 @@ function Cadastro({ onLogin }) {
   const [senha, setSenha] = useState("")
   const [confirmarSenha, setConfirmarSenha] = useState("")
 
+  function formatarCPF(valor) {
+    valor = valor.replace(/\D/g, '')
+    valor = valor.slice(0, 11)
+
+    valor = valor.replace(/(\d{3})(\d)/, '$1.$2') // escreve 3 números e é colocado 1 .
+    valor = valor.replace(/(\d{3})(\d)/, '$1.$2') // escreve 3 números e é colocado 1 .
+    valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // escreve 3 números e é colocado 1 hífen
+
+    return valor
+  }
+
+  function formatarTelefone(valor) {
+    valor = valor.replace(/\D/g, '')
+    valor = valor.slice(0, 11)
+
+    if (valor.length <= 10) {
+      valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // coloca os dois primeiros números dentro do parênteses
+      valor = valor.replace(/(\d{4})(\d)/, '$1-$2') // depois de colocar 4 números, ele coloca um hífen
+    } else { // caso seja celular
+      valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // pega os 2 primeiros que são o DDD
+      valor = valor.replace(/(\d{5})(\d)/, '$1-$2') // depois do DDD, quando colocar 5 números ele coloca 1 hífen
+    }
+
+    return valor
+  }
+
   function submit(event) {
     event.preventDefault()
 
@@ -17,33 +43,16 @@ function Cadastro({ onLogin }) {
       return
     }
 
-    alert("Cadastro realizado!")
-  }
-
-  function formatarCPF(valor) {
-    valor = valor.replace(/\D/g, '')
-    valor = valor.slice(0, 11)
-  
-    valor = valor.replace(/(\d{3})(\d)/, '$1.$2') // escreve 3 números e é colocado 1 .
-    valor = valor.replace(/(\d{3})(\d)/, '$1.$2') // escreve 3 números e é colocado 1 .
-    valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // escreve 3 números e é colocado 1 hífen
-  
-    return valor
-  }
-  
-  function formatarTelefone(valor) {
-    valor = valor.replace(/\D/g, '')
-    valor = valor.slice(0, 11)
-  
-    if (valor.length <= 10) {
-      valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // coloca os dois primeiros números dentro do parênteses
-      valor = valor.replace(/(\d{4})(\d)/, '$1-$2') // depois de colocar 4 números, ele coloca um hífen
-    } else { // caso seja celular
-      valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // pega os 2 primeiros que são o DDD
-      valor = valor.replace(/(\d{5})(\d)/, '$1-$2') // depois do DDD, quando colocar 5 números ele coloca 1 hífen
+    if (senha.length < 6) {
+      alert("A senha deve ter pelo menos 6 caracteres!")
+      return
     }
-  
-    return valor
+
+    alert("Cadastro realizado com sucesso!")
+
+    if (onLogin) {
+      onLogin()
+    }
   }
 
   return (
@@ -59,7 +68,10 @@ function Cadastro({ onLogin }) {
             </span>
           </div>
 
-          <button className="close-button">
+          <button
+            type="button"
+            className="close-button"
+          >
             ×
           </button>
         </div>
@@ -67,13 +79,17 @@ function Cadastro({ onLogin }) {
         <div className="auth-tabs">
 
           <button
+            type="button"
             className="tab"
             onClick={onLogin}
           >
             Entrar
           </button>
 
-          <button className="tab active">
+          <button
+            type="button"
+            className="tab active"
+          >
             Criar Conta
           </button>
 
@@ -125,7 +141,9 @@ function Cadastro({ onLogin }) {
                 placeholder="000.000.000-00"
                 value={cpf}
                 onChange={(event) =>
-                  setCpf(formatarCPF(event.target.value))
+                  setCpf(
+                    formatarCPF(event.target.value)
+                  )
                 }
                 maxLength={14}
                 required
@@ -142,7 +160,9 @@ function Cadastro({ onLogin }) {
                 placeholder="(11) 99999-9999"
                 value={telefone}
                 onChange={(event) =>
-                  setTelefone(formatarTelefone(event.target.value))
+                  setTelefone(
+                    formatarTelefone(event.target.value)
+                  )
                 }
                 maxLength={15}
               />

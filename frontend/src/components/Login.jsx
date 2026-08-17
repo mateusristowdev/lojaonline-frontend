@@ -1,13 +1,18 @@
 import { useState } from "react"
+import { useStore } from "../store"
 import "./Auth.css"
 
-function Login({ onCadastro, onAdmin }) {
+function Login({ onCadastro }) {
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
   const [modoAdmin, setModoAdmin] = useState(false)
 
+  const { login } = useStore()
+
   function entrarComoAdmin() {
     setModoAdmin(true)
+    setEmail("")
+    setSenha("")
   }
 
   function voltarLogin() {
@@ -20,14 +25,28 @@ function Login({ onCadastro, onAdmin }) {
     event.preventDefault()
 
     if (modoAdmin) {
-      alert("Login de administrador realizado!")
+      if (
+        email === import.meta.env.VITE_ADMIN_EMAIL &&
+        senha === import.meta.env.VITE_ADMIN_SENHA
+      ) {
+        login({
+          email: email,
+          tipo: "admin"
+        })
 
-      if (onAdmin) {
-        onAdmin()
+        alert("Login de administrador realizado!")
+
+        return
       }
 
+      alert("E-mail ou senha de administrador incorretos!")
       return
     }
+
+    login({
+      email: email,
+      tipo: "usuario"
+    })
 
     alert("Login realizado!")
   }
@@ -38,21 +57,20 @@ function Login({ onCadastro, onAdmin }) {
 
         <div className="auth-header">
           <div className="logo">
-            <span className="logo-m">M</span>
+            <span className="logo-m">
+              M
+            </span>
 
             <span className="logo-text">
               MANTO <span>017</span>
             </span>
           </div>
-
-          <button className="close-button">
-            ×
-          </button>
         </div>
 
         <div className="auth-tabs">
 
           <button
+            type="button"
             className={!modoAdmin ? "tab active" : "tab"}
             onClick={voltarLogin}
           >
@@ -60,6 +78,7 @@ function Login({ onCadastro, onAdmin }) {
           </button>
 
           <button
+            type="button"
             className="tab"
             onClick={onCadastro}
           >
@@ -67,7 +86,12 @@ function Login({ onCadastro, onAdmin }) {
           </button>
 
           <button
-            className={modoAdmin ? "tab active admin-tab" : "tab"}
+            type="button"
+            className={
+              modoAdmin
+                ? "tab active admin-tab"
+                : "tab"
+            }
             onClick={entrarComoAdmin}
           >
             Admin
@@ -77,11 +101,12 @@ function Login({ onCadastro, onAdmin }) {
 
         {modoAdmin && (
           <div className="admin-warning">
-            <div>
-              <strong>Área restrita.</strong>
-              <br />
-              Use as credenciais de administrador do sistema.
-            </div>
+            <strong>Área restrita.</strong>
+
+            <p>
+              Use as credenciais de administrador
+              do sistema.
+            </p>
           </div>
         )}
 
@@ -149,7 +174,11 @@ function Login({ onCadastro, onAdmin }) {
         ) : (
           <div className="auth-footer">
             Não tem conta?{" "}
-            <button onClick={onCadastro}>
+
+            <button
+              type="button"
+              onClick={onCadastro}
+            >
               Criar agora
             </button>
           </div>

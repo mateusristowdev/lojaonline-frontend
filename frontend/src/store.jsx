@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react"
 
-const StoreContext = createContext()
+const StoreContext = createContext(null)
 
 export function StoreProvider({ children }) {
   const [page, setPage] = useState("home")
@@ -29,7 +29,9 @@ export function StoreProvider({ children }) {
 
   function removerDoCarrinho(id) {
     setCarrinho((carrinhoAtual) =>
-      carrinhoAtual.filter((produto) => produto.id !== id)
+      carrinhoAtual.filter(
+        (produto) => produto.id !== id
+      )
     )
   }
 
