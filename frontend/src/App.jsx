@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { StoreProvider, useStore } from "./store"
 
-import Login from "./components/Login"
+import LoginPage from "./components/Login"
 import Cadastro from "./components/Cadastro"
 import HomePage from "./components/HomePage"
 import AdminPanel from "./components/AdminPanel"
@@ -18,7 +18,7 @@ function AppContent() {
 
   if (!usuario) {
     return telaAuth === "login" ? (
-      <Login
+      <LoginPage
         onCadastro={() => setTelaAuth("cadastro")}
       />
     ) : (

@@ -48,6 +48,19 @@ function Cadastro({ onLogin }) {
       return
     }
 
+    let data = { nome: nome, email: email, cpf: cpf, telefone: telefone, senha: senha }
+
+    fetch('http://localhost:3000/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch((error) => console.error('Error:', error));
+
     alert("Cadastro realizado com sucesso!")
 
     if (onLogin) {

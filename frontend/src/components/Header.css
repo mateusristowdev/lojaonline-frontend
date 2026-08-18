@@ -8,3 +8,22 @@
     height: auto;
     display: block;
   }
+
+  .header-menu {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+  
+  .header-menu button {
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+  }
+  
+  .header-menu button:hover {
+    color: #000;
+  }
+  

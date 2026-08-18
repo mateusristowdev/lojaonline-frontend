@@ -1,31 +1,9 @@
+import logo from "../assets/logo-manto-017.png"
 import "./HomePage.css"
 
 function Home() {
   return (
     <div className="home">
-
-      <header className="home-header">
-
-        <div className="home-logo">
-          <span className="home-logo-m">
-            <img src="logo-manto-017.jpeg"></img>
-          </span>
-
-          <span className="home-logo-text">
-            MANTO <span>017</span>
-          </span>
-        </div>
-
-        <nav className="home-menu">
-          <button>Início</button>
-          <button>Camisas</button>
-          <button>Clubes</button>
-          <button>Seleções</button>
-          <button>Retrô</button>
-          <button>Outlet</button>
-        </nav>
-
-      </header>
 
       <main>
 

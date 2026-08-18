@@ -11,7 +11,18 @@ export function StoreProvider({ children }) {
 
   const [carrinhoAberto, setCarrinhoAberto] = useState(false)
 
-  function login(dadosUsuario) {
+async function login(dadosUsuario) {
+    console.log(dadosUsuario)
+    let data = { email: dadosUsuario.email, senha: dadosUsuario.senha }
+    await fetch('http://localhost:3000/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+    .then(data => console.log(data))
+    .catch((error) => {throw new Error('Error:', error)});
     setUsuario(dadosUsuario)
   }
 

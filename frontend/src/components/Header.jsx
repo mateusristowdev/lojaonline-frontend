@@ -1,4 +1,4 @@
-import logo from "../assets/logo-manto-017.jpeg"
+import logo from "../assets/logo-manto-017.png"
 import "./Header.css"
 
 function Header() {
@@ -6,10 +6,7 @@ function Header() {
     <header className="header">
 
       <div className="header-logo">
-        <img
-          src="logo-manto-017.jpeg"
-          alt="MANTO 017"
-        />
+        <img src={logo}></img>
       </div>
 
       <nav className="header-menu">
