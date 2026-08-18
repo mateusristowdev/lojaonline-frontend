@@ -1,65 +1,58 @@
 import { useState } from "react"
-
 import { StoreProvider, useStore } from "./store"
 
 import Login from "./components/Login"
 import Cadastro from "./components/Cadastro"
 import HomePage from "./components/HomePage"
 import AdminPanel from "./components/AdminPanel"
+import Header from "./components/Header"
+import Footer from "./components/Footer"
+import CartSidebar from "./components/CartSidebar"
 
-import "./components/Auth.css"
+import "./App.css"
 
 function AppContent() {
-  const {
-    usuario,
-    page
-  } = useStore()
+  const { page, usuario } = useStore()
 
   const [telaAuth, setTelaAuth] = useState("login")
 
-  // Se não estiver logado,
-  // mostra login ou cadastro
   if (!usuario) {
-    if (telaAuth === "cadastro") {
-      return (
-        <Cadastro
-          onLogin={() => setTelaAuth("login")}
-        />
-      )
-    }
-
-    return (
+    return telaAuth === "login" ? (
       <Login
         onCadastro={() => setTelaAuth("cadastro")}
+      />
+    ) : (
+      <Cadastro
+        onLogin={() => setTelaAuth("login")}
       />
     )
   }
 
-  // Usuário comum
-  if (usuario.tipo === "usuario") {
-    return <HomePage />
+  if (usuario.tipo === "admin") {
+    return (
+      <div className="app">
+        <AdminPanel />
+      </div>
+    )
   }
 
-  // Administrador
-  if (
-    usuario.tipo === "admin" &&
-    page === "admin"
-  ) {
-    return <AdminPanel />
-  }
+  return (
+    <div className="app">
+      <Header />
 
-  // Segurança:
-  // se for admin mas tentar acessar outra página,
-  // manda para home
-  return <HomePage />
+      {page === "home" && <HomePage />}
+
+      <Footer />
+
+      <CartSidebar />
+    </div>
+  )
 }
 
-function App() {
+export default function App() {
   return (
     <StoreProvider>
       <AppContent />
     </StoreProvider>
   )
 }
-
-export default App

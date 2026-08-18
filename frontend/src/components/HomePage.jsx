@@ -1,60 +1,160 @@
-import { useStore } from "../store"
 import "./HomePage.css"
 
-function HomePage() {
-  const { usuario, logout } = useStore()
-
+function Home() {
   return (
-    <main className="home-page">
+    <div className="home">
 
-      <section className="home-hero">
+      <header className="home-header">
 
-        <div className="home-content">
-
-          <span className="home-tag">
-            MANTO 017
+        <div className="home-logo">
+          <span className="home-logo-m">
+            <img src="logo-manto-017.jpeg"></img>
           </span>
 
-          <h1>
-            Vista a paixão pelo futebol.
-          </h1>
-
-          <p>
-            Camisas, produtos e acessórios
-            para quem vive o futebol.
-          </p>
-
-          <button className="home-button">
-            Ver produtos
-          </button>
-
+          <span className="home-logo-text">
+            MANTO <span>017</span>
+          </span>
         </div>
 
-      </section>
+        <nav className="home-menu">
+          <button>Início</button>
+          <button>Camisas</button>
+          <button>Clubes</button>
+          <button>Seleções</button>
+          <button>Retrô</button>
+          <button>Outlet</button>
+        </nav>
 
-      <section className="home-welcome">
+      </header>
 
-        <h2>
-          Bem-vindo à MANTO 017
-        </h2>
+      <main>
 
-        {usuario && (
-          <p>
-            Olá, {usuario.nome || usuario.email}!
-          </p>
-        )}
+        <section className="home-banner">
 
-        <button
-          className="logout-button"
-          onClick={logout}
-        >
-          Sair da conta
-        </button>
+          <div className="banner-content">
 
-      </section>
+            <p className="banner-small">
+              O MANTO DO SEU TIME
+            </p>
 
-    </main>
+            <h1>
+              VISTA A<br />
+              <span>PAIXÃO.</span>
+            </h1>
+
+            <p className="banner-description">
+              Camisas oficiais, retrôs e muito mais.
+              Encontre o manto que representa você.
+            </p>
+
+            <button className="banner-button">
+              VER CAMISAS
+            </button>
+
+          </div>
+
+        </section>
+
+        <section className="home-products">
+
+          <div className="section-header">
+
+            <div>
+              <p>DESTAQUES</p>
+
+              <h2>
+                MAIS VENDIDOS
+              </h2>
+            </div>
+
+            <button className="see-all">
+              Ver todos →
+            </button>
+
+          </div>
+
+          <div className="products-grid">
+
+            <div className="product-card">
+              <div className="product-image flamengo">
+                CAMISA
+              </div>
+
+              <div className="product-info">
+                <p>BRASIL · BRASILEIRÃO</p>
+
+                <h3>Flamengo</h3>
+
+                <span>2024/25</span>
+
+                <strong>
+                  R$ 299,90
+                </strong>
+              </div>
+            </div>
+
+            <div className="product-card">
+              <div className="product-image palmeiras">
+                CAMISA
+              </div>
+
+              <div className="product-info">
+                <p>BRASIL · BRASILEIRÃO</p>
+
+                <h3>Palmeiras</h3>
+
+                <span>2024/25</span>
+
+                <strong>
+                  R$ 299,90
+                </strong>
+              </div>
+            </div>
+
+            <div className="product-card">
+              <div className="product-image corinthians">
+                CAMISA
+              </div>
+
+              <div className="product-info">
+                <p>BRASIL · BRASILEIRÃO</p>
+
+                <h3>Corinthians</h3>
+
+                <span>2024/25</span>
+
+                <strong>
+                  R$ 289,90
+                </strong>
+              </div>
+            </div>
+
+            <div className="product-card">
+              <div className="product-image brasil">
+                CAMISA
+              </div>
+
+              <div className="product-info">
+                <p>BRASIL · SELEÇÃO</p>
+
+                <h3>Seleção Brasileira</h3>
+
+                <span>2024/25</span>
+
+                <strong>
+                  R$ 349,90
+                </strong>
+              </div>
+            </div>
+
+          </div>
+
+        </section>
+
+      </main>
+
+    </div>
   )
 }
 
-export default HomePage
+export default Home

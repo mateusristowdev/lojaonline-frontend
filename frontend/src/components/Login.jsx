@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useStore } from "../store"
 import "./Auth.css"
 
-function Login({ onCadastro }) {
+function Login({ onCadastro, onLogin }) {
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
   const [modoAdmin, setModoAdmin] = useState(false)
@@ -11,8 +11,6 @@ function Login({ onCadastro }) {
 
   function entrarComoAdmin() {
     setModoAdmin(true)
-    setEmail("")
-    setSenha("")
   }
 
   function voltarLogin() {
@@ -23,32 +21,28 @@ function Login({ onCadastro }) {
 
   function submit(event) {
     event.preventDefault()
-
+  
     if (modoAdmin) {
-      if (
-        email === import.meta.env.VITE_ADMIN_EMAIL &&
-        senha === import.meta.env.VITE_ADMIN_SENHA
-      ) {
-        login({
-          email: email,
-          tipo: "admin"
-        })
-
-        alert("Login de administrador realizado!")
-
-        return
-      }
-
-      alert("E-mail ou senha de administrador incorretos!")
+      login({
+        email: email,
+        tipo: "admin"
+      })
+  
+      alert("Login de administrador realizado!")
+  
       return
     }
-
+  
     login({
       email: email,
       tipo: "usuario"
     })
-
+  
     alert("Login realizado!")
+  
+    if (onLogin) {
+      onLogin()
+    }
   }
 
   return (
@@ -57,14 +51,19 @@ function Login({ onCadastro }) {
 
         <div className="auth-header">
           <div className="logo">
-            <span className="logo-m">
-              M
-            </span>
+            <span className="logo-m">M</span>
 
             <span className="logo-text">
               MANTO <span>017</span>
             </span>
           </div>
+
+          <button
+            type="button"
+            className="close-button"
+          >
+            ×
+          </button>
         </div>
 
         <div className="auth-tabs">
@@ -102,11 +101,8 @@ function Login({ onCadastro }) {
         {modoAdmin && (
           <div className="admin-warning">
             <strong>Área restrita.</strong>
-
-            <p>
-              Use as credenciais de administrador
-              do sistema.
-            </p>
+            <br />
+            Use as credenciais de administrador.
           </div>
         )}
 
