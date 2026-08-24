@@ -7,7 +7,7 @@ function LoginPage({ onCadastro, onLogin }) {
   const [senha, setSenha] = useState("");
   const [modoAdmin, setModoAdmin] = useState(false);
 
-  const { Login } = useStore()
+  const { login } = useStore();
 
   function entrarComoAdmin() {
     setModoAdmin(true);
@@ -19,24 +19,35 @@ function LoginPage({ onCadastro, onLogin }) {
     setSenha("");
   }
 
-  async function submit(event) {
-    event.preventDefault();
+  const loginHandle = async () => {
     try {
-      Login( { email, senha } )
-      alert("Login realizado!");
-
+      const data = await login({
+        email,
+        senha,
+      });
+  
+      console.log("Login realizado:", data);
+  
+      alert("Login realizado com sucesso!");
+  
       if (onLogin) {
-        onLogin();
+        onLogin(data);
       }
     } catch (error) {
       console.error("Erro no login:", error);
-      alert("Erro ao realizar login");
+      alert(error.message || "Erro ao fazer login");
     }
+  };
+  
+  async function submit(event) {
+    event.preventDefault();
+    await loginHandle();
   }
 
   return (
     <div className="auth-overlay">
       <div className="auth-card">
+
         <div className="auth-header">
           <div className="logo">
             <span className="logo-m">M</span>
@@ -46,12 +57,16 @@ function LoginPage({ onCadastro, onLogin }) {
             </span>
           </div>
 
-          <button type="button" className="close-button">
+          <button
+            type="button"
+            className="close-button"
+          >
             ×
           </button>
         </div>
 
         <div className="auth-tabs">
+
           <button
             type="button"
             className={!modoAdmin ? "tab active" : "tab"}
@@ -60,7 +75,11 @@ function LoginPage({ onCadastro, onLogin }) {
             Entrar
           </button>
 
-          <button type="button" className="tab" onClick={onCadastro}>
+          <button
+            type="button"
+            className="tab"
+            onClick={onCadastro}
+          >
             Criar Conta
           </button>
 
@@ -71,6 +90,7 @@ function LoginPage({ onCadastro, onLogin }) {
           >
             Admin
           </button>
+
         </div>
 
         {modoAdmin && (
@@ -82,6 +102,7 @@ function LoginPage({ onCadastro, onLogin }) {
         )}
 
         <form onSubmit={submit}>
+
           <div className="form-group">
             <label>
               E-MAIL <span>*</span>
@@ -112,18 +133,25 @@ function LoginPage({ onCadastro, onLogin }) {
 
           {!modoAdmin && (
             <div className="forgot-password">
-              <button type="button">Esqueci minha senha</button>
+              <button type="button">
+                Esqueci minha senha
+              </button>
             </div>
           )}
 
           <button
             type="submit"
             className={
-              modoAdmin ? "submit-button admin-submit" : "submit-button"
+              modoAdmin
+                ? "submit-button admin-submit"
+                : "submit-button"
             }
           >
-            {modoAdmin ? "Entrar como Admin" : "Entrar na conta"}
+            {modoAdmin
+              ? "Entrar como Admin"
+              : "Entrar na conta"}
           </button>
+
         </form>
 
         {modoAdmin ? (
@@ -133,14 +161,19 @@ function LoginPage({ onCadastro, onLogin }) {
         ) : (
           <div className="auth-footer">
             Não tem conta?{" "}
-            <button type="button" onClick={onCadastro}>
+
+            <button
+              type="button"
+              onClick={onCadastro}
+            >
               Criar agora
             </button>
           </div>
         )}
+
       </div>
     </div>
   );
 }
 
-export default LoginPage;
+export default LoginPage; 

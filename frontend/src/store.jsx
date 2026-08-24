@@ -11,19 +11,39 @@ export function StoreProvider({ children }) {
 
   const [carrinhoAberto, setCarrinhoAberto] = useState(false)
 
-async function login(dadosUsuario) {
-    console.log(dadosUsuario)
-    let data = { email: dadosUsuario.email, senha: dadosUsuario.senha }
-    await fetch('http://localhost:3000/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-    .then(data => console.log(data))
-    .catch((error) => {throw new Error('Error:', error)});
-    setUsuario(dadosUsuario)
+  async function login(dadosUsuario) {
+    try {
+      const response = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: dadosUsuario.email,
+          senha: dadosUsuario.senha,
+        }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.erro || "Erro ao fazer login");
+      }
+  
+      console.log("Login realizado:", data);
+  
+      localStorage.setItem("token", data.token);
+  
+      setUsuario({
+        email: dadosUsuario.email,
+      });
+  
+      return data;
+  
+    } catch (error) {
+      console.error("Erro no login:", error);
+      throw error;
+    }
   }
 
   function logout() {
