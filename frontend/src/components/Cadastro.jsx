@@ -1,70 +1,106 @@
-import { useState } from "react"
-import "./Auth.css"
+import { useState } from "react";
+import "./Auth.css";
 
 function Cadastro({ onLogin }) {
-  const [nome, setNome] = useState("")
-  const [email, setEmail] = useState("")
-  const [cpf, setCpf] = useState("")
-  const [telefone, setTelefone] = useState("")
-  const [senha, setSenha] = useState("")
-  const [confirmarSenha, setConfirmarSenha] = useState("")
+  const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
 
   function formatarCPF(valor) {
-    valor = valor.replace(/\D/g, '')
-    valor = valor.slice(0, 11)
+    valor = valor.replace(/\D/g, "");
+    valor = valor.slice(0, 11);
 
-    valor = valor.replace(/(\d{3})(\d)/, '$1.$2') // escreve 3 números e é colocado 1 .
-    valor = valor.replace(/(\d{3})(\d)/, '$1.$2') // escreve 3 números e é colocado 1 .
-    valor = valor.replace(/(\d{3})(\d{1,2})$/, '$1-$2') // escreve 3 números e é colocado 1 hífen
+    valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+    valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+    valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 
-    return valor
+    return valor;
   }
 
   function formatarTelefone(valor) {
-    valor = valor.replace(/\D/g, '')
-    valor = valor.slice(0, 11)
+    valor = valor.replace(/\D/g, "");
+    valor = valor.slice(0, 11);
 
     if (valor.length <= 10) {
-      valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // coloca os dois primeiros números dentro do parênteses
-      valor = valor.replace(/(\d{4})(\d)/, '$1-$2') // depois de colocar 4 números, ele coloca um hífen
+      valor = valor.replace(/(\d{2})(\d)/, "($1) $2");
+      valor = valor.replace(/(\d{4})(\d)/, "$1-$2");
     } else {
-      valor = valor.replace(/(\d{2})(\d)/, '($1) $2') // pega os 2 primeiros que são o DDD
-      valor = valor.replace(/(\d{5})(\d)/, '$1-$2') // depois do DDD, quando colocar 5 números ele coloca 1 hífen
+      valor = valor.replace(/(\d{2})(\d)/, "($1) $2");
+      valor = valor.replace(/(\d{5})(\d)/, "$1-$2");
     }
 
-    return valor
+    return valor;
   }
 
-  function submit(event) {
-    event.preventDefault()
+  async function submit(event) {
+    event.preventDefault();
 
     if (senha !== confirmarSenha) {
-      alert("As senhas não são iguais!")
-      return
+      alert("As senhas não são iguais!");
+      return;
     }
 
     if (senha.length < 6) {
-      alert("A senha deve ter pelo menos 6 caracteres!")
-      return
+      alert("A senha deve ter pelo menos 6 caracteres!");
+      return;
     }
 
-    let data = { nome: nome, email: email, cpf: cpf, telefone: telefone, senha: senha }
+    if (cpf.replace(/\D/g, "").length !== 11) {
+      alert("Digite um CPF válido!");
+      return;
+    }
 
-    fetch('http://localhost:3000/auth/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch((error) => console.error('Error:', error));
+    const data = {
+      nome,
+      email,
+      cpf,
+      telefone: telefone || null,
+      senha
+    };
 
-    alert("Cadastro realizado com sucesso!")
+    console.log("Dados enviados para cadastro:", data);
 
-    if (onLogin) {
-      onLogin()
+    try {
+      const response = await fetch(
+        "http://localhost:3000/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        }
+      );
+
+      const resultado = await response.json();
+
+      console.log("Resposta do cadastro:", resultado);
+
+      if (!response.ok) {
+        throw new Error(
+          resultado.erro || "Erro ao realizar cadastro"
+        );
+      }
+
+      alert("Cadastro realizado com sucesso!");
+
+      setNome("");
+      setEmail("");
+      setCpf("");
+      setTelefone("");
+      setSenha("");
+      setConfirmarSenha("");
+
+      if (onLogin) {
+        onLogin();
+      }
+
+    } catch (error) {
+      console.error("Erro no cadastro:", error);
+      alert(error.message || "Erro ao realizar cadastro");
     }
   }
 
@@ -90,7 +126,6 @@ function Cadastro({ onLogin }) {
         </div>
 
         <div className="auth-tabs">
-
           <button
             type="button"
             className="tab"
@@ -105,7 +140,6 @@ function Cadastro({ onLogin }) {
           >
             Criar Conta
           </button>
-
         </div>
 
         <form onSubmit={submit}>
@@ -232,7 +266,7 @@ function Cadastro({ onLogin }) {
 
       </div>
     </div>
-  )
+  );
 }
 
-export default Cadastro
+export default Cadastro;

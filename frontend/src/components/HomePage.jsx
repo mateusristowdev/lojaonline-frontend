@@ -1,7 +1,33 @@
 import logo from "../assets/logo-manto-017.png"
+import { useEffect, useState } from "react"
 import "./HomePage.css"
 
 function Home() {
+  const [produtos, setProdutos] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState("")
+
+  useEffect(() => {
+    async function visualizarProdutos() {
+      try {
+        const response = await fetch("http://localhost:3000/produtos")
+
+        if (!response.ok) {
+          throw new Error("Erro ao visualizar produtos")
+        }
+
+        const dados = await response.json()
+
+        setProdutos(dados)
+      } catch (error) {
+        console.error(error)
+        setErro("Não foi possível carregar os produtos.")
+      }
+    }
+
+    visualizarProdutos()
+  })
+
   return (
     <div className="home">
 

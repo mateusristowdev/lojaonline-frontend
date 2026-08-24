@@ -182,6 +182,7 @@
   overflow: hidden;
   background: #ffffff;
   transition: 0.2s;
+  cursor: pointer;
 }
 
 .product-card:hover {
