@@ -1,42 +1,58 @@
-import logo from "../assets/logo-manto-017.png"
 import { useEffect, useState } from "react"
+import { useStore } from "../store"
+import { apiFetch } from "../services/api"
 import "./HomePage.css"
 
 function Home() {
+  const {
+    setPage,
+    setProdutoSelecionado
+  } = useStore()
+
   const [produtos, setProdutos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState("")
 
   useEffect(() => {
-    async function visualizarProdutos() {
+    async function carregarProdutos() {
       try {
-        const response = await fetch("http://localhost:3000/produtos")
+        setCarregando(true)
+        setErro("")
 
-        if (!response.ok) {
-          throw new Error("Erro ao visualizar produtos")
-        }
-
-        const dados = await response.json()
+        const dados = await apiFetch(
+          "/produtos/destaques"
+        )
 
         setProdutos(dados)
       } catch (error) {
-        console.error(error)
-        setErro("Não foi possível carregar os produtos.")
+        console.error(
+          "Erro ao carregar produtos:",
+          error
+        )
+        setErro(
+          error.message ||
+          "Não foi possível carregar os produtos."
+        )
+      } finally {
+        setCarregando(false)
       }
     }
 
-    visualizarProdutos()
-  })
+    carregarProdutos()
+  }, [])
+
+
+  function abrirProduto(produto) {
+    setProdutoSelecionado(produto)
+    setPage("produto")
+  }
+
 
   return (
     <div className="home">
-
       <main>
-
         <section className="home-banner">
-
           <div className="banner-content">
-
             <p className="banner-small">
               O MANTO DO SEU TIME
             </p>
@@ -51,7 +67,11 @@ function Home() {
               Encontre o manto que representa você.
             </p>
 
-            <button className="banner-button">
+
+            <button
+              className="banner-button"
+              onClick={() => setPage("produtos")}
+            >
               VER CAMISAS
             </button>
 
@@ -61,102 +81,133 @@ function Home() {
 
         <section className="home-products">
 
+
           <div className="section-header">
 
             <div>
-              <p>DESTAQUES</p>
+
+              <p>
+                DESTAQUES
+              </p>
 
               <h2>
                 MAIS VENDIDOS
               </h2>
+
             </div>
 
-            <button className="see-all">
+
+            <button
+              className="see-all"
+              onClick={() => setPage("produtos")}
+            >
               Ver todos →
             </button>
 
           </div>
 
-          <div className="products-grid">
+          {carregando && (
 
-            <div className="product-card">
-              <div className="product-image flamengo">
-                CAMISA
+            <p>
+              Carregando produtos...
+            </p>
+
+          )}
+
+          {erro && (
+
+            <p>
+              {erro}
+            </p>
+
+          )}
+
+          {!carregando &&
+            !erro &&
+            produtos.length > 0 && (
+
+              <div className="products-grid">
+
+                {produtos.map((produto) => (
+
+                  <div
+                    className="product-card"
+                    key={produto.id}
+                    onClick={() =>
+                      abrirProduto(produto)
+                    }
+                    style={{
+                      cursor: "pointer"
+                    }}
+                  >
+                    <div className="product-image">
+
+                      {produto.imagem ? (
+
+                        <img
+                          src={produto.imagem}
+                          alt={produto.nome}
+                        />
+
+                      ) : (
+
+                        "CAMISA"
+
+                      )}
+
+                    </div>
+
+                    <div className="product-info">
+
+
+                      <p>
+
+                        {produto.pais ||
+                          "BRASIL"}
+
+                        {" · "}
+
+                        {produto.liga ||
+                          "FUTEBOL"}
+
+                      </p>
+
+
+                      <h3>
+                        {produto.nome}
+                      </h3>
+
+
+                      <span>
+                        {produto.temporada || ""}
+                      </span>
+
+
+                      <strong>
+
+                        R${" "}
+
+                        {Number(
+                          produto.preco
+                        )
+                          .toFixed(2)
+                          .replace(".", ",")}
+
+                      </strong>
+                    </div>
+                  </div>
+                ))}
               </div>
-
-              <div className="product-info">
-                <p>BRASIL · BRASILEIRÃO</p>
-
-                <h3>Flamengo</h3>
-
-                <span>2024/25</span>
-
-                <strong>
-                  R$ 299,90
-                </strong>
-              </div>
-            </div>
-
-            <div className="product-card">
-              <div className="product-image palmeiras">
-                CAMISA
-              </div>
-
-              <div className="product-info">
-                <p>BRASIL · BRASILEIRÃO</p>
-
-                <h3>Palmeiras</h3>
-
-                <span>2024/25</span>
-
-                <strong>
-                  R$ 299,90
-                </strong>
-              </div>
-            </div>
-
-            <div className="product-card">
-              <div className="product-image corinthians">
-                CAMISA
-              </div>
-
-              <div className="product-info">
-                <p>BRASIL · BRASILEIRÃO</p>
-
-                <h3>Corinthians</h3>
-
-                <span>2024/25</span>
-
-                <strong>
-                  R$ 289,90
-                </strong>
-              </div>
-            </div>
-
-            <div className="product-card">
-              <div className="product-image brasil">
-                CAMISA
-              </div>
-
-              <div className="product-info">
-                <p>BRASIL · SELEÇÃO</p>
-
-                <h3>Seleção Brasileira</h3>
-
-                <span>2024/25</span>
-
-                <strong>
-                  R$ 349,90
-                </strong>
-              </div>
-            </div>
-
-          </div>
-
+            )}
+          {!carregando &&
+            !erro &&
+            produtos.length === 0 && (
+              <p>
+                Nenhum produto em destaque.
+              </p>
+            )}
         </section>
-
       </main>
-
     </div>
   )
 }

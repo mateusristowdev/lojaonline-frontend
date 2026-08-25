@@ -33,7 +33,7 @@ function AppContent() {
     )
   }
 
-  if (usuario.tipo === "admin") {
+  if (usuario.is_admin) {
     return (
       <div className="app">
         <AdminPanel />
@@ -52,7 +52,7 @@ function AppContent() {
 
       {page === "produto" && <ProductDetail />}
 
-      {page === "visualizarprodutos" && <VisualizarProdutos/>}
+      {page === "admin" && <AdminPanel />}
 
       <Footer />
 

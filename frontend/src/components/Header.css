@@ -27,3 +27,27 @@
     color: #000;
   }
   
+  .header-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-left: auto;
+  }
+  
+  .header-user-name {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .logout-button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 12px;
+  }
+  
+  .logout-button:hover {
+    opacity: 0.7;
+  }

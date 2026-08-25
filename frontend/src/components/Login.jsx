@@ -5,56 +5,54 @@ import "./Auth.css";
 function LoginPage({ onCadastro, onLogin }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [modoAdmin, setModoAdmin] = useState(false);
 
   const { login } = useStore();
-
-  function entrarComoAdmin() {
-    setModoAdmin(true);
-  }
-
-  function voltarLogin() {
-    setModoAdmin(false);
-    setEmail("");
-    setSenha("");
-  }
 
   const loginHandle = async () => {
     try {
       const data = await login({
         email,
-        senha,
+        senha
       });
-  
+
       console.log("Login realizado:", data);
-  
-      alert("Login realizado com sucesso!");
-  
+
       if (onLogin) {
         onLogin(data);
       }
+
     } catch (error) {
       console.error("Erro no login:", error);
-      alert(error.message || "Erro ao fazer login");
+
+      alert(
+        error.message || "Erro ao fazer login"
+      );
     }
   };
-  
+
   async function submit(event) {
     event.preventDefault();
+
     await loginHandle();
   }
 
   return (
     <div className="auth-overlay">
+
       <div className="auth-card">
 
         <div className="auth-header">
+
           <div className="logo">
-            <span className="logo-m">M</span>
+
+            <span className="logo-m">
+              M
+            </span>
 
             <span className="logo-text">
               MANTO <span>017</span>
             </span>
+
           </div>
 
           <button
@@ -63,14 +61,15 @@ function LoginPage({ onCadastro, onLogin }) {
           >
             ×
           </button>
+
         </div>
+
 
         <div className="auth-tabs">
 
           <button
             type="button"
-            className={!modoAdmin ? "tab active" : "tab"}
-            onClick={voltarLogin}
+            className="tab active"
           >
             Entrar
           </button>
@@ -83,27 +82,13 @@ function LoginPage({ onCadastro, onLogin }) {
             Criar Conta
           </button>
 
-          <button
-            type="button"
-            className={modoAdmin ? "tab active admin-tab" : "tab"}
-            onClick={entrarComoAdmin}
-          >
-            Admin
-          </button>
-
         </div>
 
-        {modoAdmin && (
-          <div className="admin-warning">
-            <strong>Área restrita.</strong>
-            <br />
-            Use as credenciais de administrador.
-          </div>
-        )}
 
         <form onSubmit={submit}>
 
           <div className="form-group">
+
             <label>
               E-MAIL <span>*</span>
             </label>
@@ -112,12 +97,17 @@ function LoginPage({ onCadastro, onLogin }) {
               type="email"
               placeholder="seu@email.com"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) =>
+                setEmail(event.target.value)
+              }
               required
             />
+
           </div>
 
+
           <div className="form-group">
+
             <label>
               SENHA <span>*</span>
             </label>
@@ -126,54 +116,51 @@ function LoginPage({ onCadastro, onLogin }) {
               type="password"
               placeholder="••••••••"
               value={senha}
-              onChange={(event) => setSenha(event.target.value)}
+              onChange={(event) =>
+                setSenha(event.target.value)
+              }
               required
             />
+
           </div>
 
-          {!modoAdmin && (
-            <div className="forgot-password">
-              <button type="button">
-                Esqueci minha senha
-              </button>
-            </div>
-          )}
+
+          <div className="forgot-password">
+
+            <button type="button">
+              Esqueci minha senha
+            </button>
+
+          </div>
+
 
           <button
             type="submit"
-            className={
-              modoAdmin
-                ? "submit-button admin-submit"
-                : "submit-button"
-            }
+            className="submit-button"
           >
-            {modoAdmin
-              ? "Entrar como Admin"
-              : "Entrar na conta"}
+            Entrar na conta
           </button>
 
         </form>
 
-        {modoAdmin ? (
-          <div className="auth-footer">
-            Acesso restrito a colaboradores autorizados.
-          </div>
-        ) : (
-          <div className="auth-footer">
-            Não tem conta?{" "}
 
-            <button
-              type="button"
-              onClick={onCadastro}
-            >
-              Criar agora
-            </button>
-          </div>
-        )}
+        <div className="auth-footer">
+
+          Não tem conta?{" "}
+
+          <button
+            type="button"
+            onClick={onCadastro}
+          >
+            Criar agora
+          </button>
+
+        </div>
 
       </div>
+
     </div>
   );
 }
 
-export default LoginPage; 
+export default LoginPage;

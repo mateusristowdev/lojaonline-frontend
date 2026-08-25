@@ -9,32 +9,32 @@ function ProductsPage() {
     setProdutoSelecionado
   } = useStore()
 
+
   const [produtos, setProdutos] = useState([])
+
   const [carregando, setCarregando] = useState(true)
+
   const [erro, setErro] = useState("")
 
   useEffect(() => {
     async function carregarProdutos() {
       try {
-
         setCarregando(true)
-
-        const dados = await apiFetch("/produtos")
-
+        setErro("")
+        const dados =
+          await apiFetch("/produtos")
         setProdutos(dados)
-
       } catch (error) {
-
-        console.error("Erro ao carregar produtos:", error)
-
-        setErro(
-          error.message || "Erro ao carregar produtos"
+        console.error(
+          "Erro ao carregar produtos:",
+          error
         )
-
+        setErro(
+          error.message ||
+          "Erro ao carregar produtos"
+        )
       } finally {
-
         setCarregando(false)
-
       }
     }
 
@@ -48,14 +48,13 @@ function ProductsPage() {
 
   return (
     <main>
-
       <section className="products-page">
 
         <div className="section-header">
-
           <div>
-            <p>CATÁLOGO</p>
-
+            <p>
+              CATÁLOGO
+            </p>
             <h1>
               PRODUTOS
             </h1>
@@ -67,7 +66,6 @@ function ProductsPage() {
           >
             ← Voltar
           </button>
-
         </div>
 
         {carregando && (
@@ -82,70 +80,100 @@ function ProductsPage() {
           </p>
         )}
 
-        {!carregando && !erro && (
-          <div className="products-grid">
+        {!carregando &&
+          !erro && (
+            
+            <div className="products-grid">
 
-            {produtos.map((produto) => (
+              {produtos.map((produto) => (
 
-              <div
-                className="product-card"
-                key={produto.id}
-                onClick={() => abrirProduto(produto)}
-                style={{ cursor: "pointer" }}
-              >
+                <div
+                  className="product-card"
+                  key={produto.id}
+                  onClick={() =>
+                    abrirProduto(produto)
+                  }
+                  style={{
+                    cursor: "pointer"
+                  }}
+                >
 
-                <div className="product-image">
+                  <div className="product-image">
+                    {produto.imagem ? (
+                      <img
+                        src={produto.imagem}
+                        alt={produto.nome}
+                      />
+                    ) : (
+                      "CAMISA"
+                    )}
 
-                  {produto.imagem ? (
-                    <img
-                      src={produto.imagem}
-                      alt={produto.nome}
-                    />
-                  ) : (
-                    "CAMISA"
-                  )}
+                  </div>
+
+                  <div className="product-info">
+
+                    <p>
+
+                      {produto.pais ||
+                        "BRASIL"}
+
+                      {" · "}
+
+                      {produto.liga ||
+                        "FUTEBOL"}
+
+                    </p>
+
+
+                    <h3>
+                      {produto.nome}
+                    </h3>
+
+
+                    <span>
+                      {produto.temporada || ""}
+                    </span>
+
+
+                    <strong>
+
+                      R${" "}
+
+                      {Number(
+                        produto.preco
+                      )
+                        .toFixed(2)
+                        .replace(".", ",")}
+
+                    </strong>
+
+                  </div>
 
                 </div>
 
-                <div className="product-info">
+              ))}
 
-                  <p>
-                    {produto.pais || "BRASIL"}
-                    {" · "}
-                    {produto.liga || "FUTEBOL"}
-                  </p>
+            </div>
 
-                  <h3>
-                    {produto.nome}
-                  </h3>
+          )}
 
-                  <span>
-                    {produto.temporada || ""}
-                  </span>
+        {!carregando &&
+          !erro &&
+          produtos.length === 0 && (
 
-                  <strong>
-                    R$ {Number(produto.preco).toFixed(2).replace(".", ",")}
-                  </strong>
+            <p>
+              Nenhum produto encontrado.
+            </p>
 
-                </div>
-
-              </div>
-
-            ))}
-
-          </div>
-        )}
-
-        {!carregando && !erro && produtos.length === 0 && (
-          <p>
-            Nenhum produto encontrado.
-          </p>
-        )}
+          )}
 
       </section>
 
     </main>
+
   )
+
 }
+
 
 export default ProductsPage

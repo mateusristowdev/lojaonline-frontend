@@ -1,18 +1,41 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from "react"
 
-const StoreContext = createContext(null);
+const StoreContext = createContext(null)
 
 export function StoreProvider({ children }) {
-  const [page, setPage] = useState("home");
-  const [produtoSelecionado, setProdutoSelecionado] = useState(null)
-  const [usuario, setUsuario] = useState(null);
-  const [carrinho, setCarrinho] = useState([]);
-  const [carrinhoAberto, setCarrinhoAberto] = useState(false);
+
+  const [page, setPage] = useState("home")
+
+  const [produtoSelecionado, setProdutoSelecionado] =
+    useState(null)
+
+  const [usuario, setUsuario] = useState(() => {
+
+    const usuarioSalvo =
+      localStorage.getItem("usuario")
+
+    return usuarioSalvo
+      ? JSON.parse(usuarioSalvo)
+      : null
+  })
+
+  const [carrinho, setCarrinho] = useState([])
+
+  const [carrinhoAberto, setCarrinhoAberto] =
+    useState(false)
 
   async function login(dadosUsuario) {
+
     try {
-      if (!dadosUsuario?.email || !dadosUsuario?.senha) {
-        throw new Error("E-mail e senha são obrigatórios");
+
+      if (
+        !dadosUsuario?.email ||
+        !dadosUsuario?.senha
+      ) {
+
+        throw new Error(
+          "E-mail e senha são obrigatórios"
+        )
       }
 
       const response = await fetch(
@@ -29,74 +52,104 @@ export function StoreProvider({ children }) {
             senha: dadosUsuario.senha
           })
         }
-      );
+      )
 
-      const data = await response.json();
+      const data = await response.json()
 
-      console.log("Resposta do login:", data);
+      console.log(
+        "Resposta do login:",
+        data
+      )
 
       if (!response.ok) {
+
         throw new Error(
-          data.erro || "Erro ao fazer login"
-        );
+          data.erro ||
+          "Erro ao fazer login"
+        )
       }
 
       if (!data.token) {
-        throw new Error("Token não recebido pelo servidor");
+
+        throw new Error(
+          "Token não recebido pelo servidor"
+        )
       }
 
       localStorage.setItem(
         "token",
         data.token
-      );
+      )
 
-      setUsuario(
+      localStorage.setItem(
+        "usuario",
+        JSON.stringify(data.usuario)
+      )
+
+      setUsuario(data.usuario)
+
+      console.log(
+        "Usuário:",
         data.usuario
-      );
+      )
 
-      return data;
+      console.log(
+        "É administrador:",
+        data.usuario?.is_admin
+      )
+
+      return data
 
     } catch (error) {
+
       console.error(
         "Erro no login:",
         error
-      );
+      )
 
-      throw error;
+      throw error
     }
   }
 
   function logout() {
-    localStorage.removeItem("token");
 
-    setUsuario(null);
-    setPage("home");
+    localStorage.removeItem("token")
+
+    localStorage.removeItem("usuario")
+
+    setUsuario(null)
+
+    setPage("home")
   }
 
   function adicionarAoCarrinho(produto) {
+
     setCarrinho((carrinhoAtual) => [
       ...carrinhoAtual,
       produto
-    ]);
+    ])
   }
 
   function removerDoCarrinho(id) {
+
     setCarrinho((carrinhoAtual) =>
       carrinhoAtual.filter(
-        (produto) => produto.id !== id
+        (produto) =>
+          produto.id !== id
       )
-    );
+    )
   }
 
   function abrirCarrinho() {
-    setCarrinhoAberto(true);
+    setCarrinhoAberto(true)
   }
 
   function fecharCarrinho() {
-    setCarrinhoAberto(false);
+    setCarrinhoAberto(false)
   }
 
   return (
+
     <StoreContext.Provider
       value={{
         page,
@@ -114,11 +167,13 @@ export function StoreProvider({ children }) {
         fecharCarrinho
       }}
     >
+
       {children}
+
     </StoreContext.Provider>
-  );
+  )
 }
 
 export function useStore() {
-  return useContext(StoreContext);
+  return useContext(StoreContext)
 }
