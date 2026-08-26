@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useStore } from "../store"
 import { apiFetch } from "../services/api"
+import "./ProductsPage.css"
 
 function ProductsPage() {
 

@@ -25,11 +25,19 @@ function ProductDetail() {
     )
   }
 
-  const produto = produtoSelecionado
+    const produto = produtoSelecionado
 
-  function comprar() {
-    adicionarAoCarrinho(produto)
-    alert("Produto adicionado ao carrinho!")
+  async function comprar() {
+    try {
+      await adicionarAoCarrinho(produto)
+
+      alert("Produto adicionado ao carrinho!")
+    } catch (error) {
+      alert(
+        error.message ||
+        "Não foi possível adicionar o produto ao carrinho."
+      )
+    }
   }
 
   const preco = Number(produto.preco)
