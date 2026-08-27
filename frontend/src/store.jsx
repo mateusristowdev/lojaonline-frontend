@@ -58,39 +58,52 @@ export function StoreProvider({ children }) {
       )
 
       const data = await response.json()
+
       if (!response.ok) {
         throw new Error(
           data.erro ||
           "Erro ao fazer login"
         )
       }
+
       if (!data.token) {
         throw new Error(
           "Token não recebido pelo servidor"
         )
       }
+
       localStorage.setItem(
         "token",
         data.token
       )
+
       localStorage.setItem(
         "usuario",
         JSON.stringify(data.usuario)
       )
+
       setUsuario(data.usuario)
+
+      setPage("home")
+
       return data
+
     } catch (error) {
+
       console.error(
         "Erro no login:",
         error
       )
+
       throw error
     }
   }
 
   function logout() {
+
     localStorage.removeItem("token")
     localStorage.removeItem("usuario")
+
     setUsuario(null)
     setCarrinho([])
     setCarrinhoAberto(false)
@@ -98,25 +111,35 @@ export function StoreProvider({ children }) {
   }
 
   async function carregarCarrinho() {
+
     if (!usuario) {
       setCarrinho([])
       return
     }
+
     try {
+
       setCarregandoCarrinho(true)
+
       const data = await apiFetch(
         "/carrinho"
       )
+
       setCarrinho(
         data?.itens || []
       )
+
     } catch (error) {
+
       console.error(
         "Erro ao carregar carrinho:",
         error
       )
+
       setCarrinho([])
+
     } finally {
+
       setCarregandoCarrinho(false)
     }
   }

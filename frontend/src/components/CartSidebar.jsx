@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useStore } from "../store"
 import "./CartSidebar.css"
 
@@ -13,6 +14,10 @@ function CartSidebar() {
     quantidadeItens
   } = useStore()
 
+  const [cupom, setCupom] = useState("")
+  const [cupomAplicado, setCupomAplicado] = useState(false)
+  const [mensagemCupom, setMensagemCupom] = useState("")
+
   if (!carrinhoAberto) {
     return null
   }
@@ -22,6 +27,38 @@ function CartSidebar() {
       .toFixed(2)
       .replace(".", ",")
   }
+
+  function aplicarCupom() {
+
+    const codigo = cupom.trim().toUpperCase()
+
+    if (!codigo) {
+      setMensagemCupom("Digite um cupom.")
+      return
+    }
+
+    if (codigo === "MANTO10") {
+      setCupomAplicado(true)
+      setMensagemCupom("Cupom aplicado com sucesso!")
+      return
+    }
+
+    setCupomAplicado(false)
+    setMensagemCupom("Cupom inválido.")
+  }
+
+  function removerCupom() {
+    setCupom("")
+    setCupomAplicado(false)
+    setMensagemCupom("")
+  }
+
+  const desconto = cupomAplicado
+    ? totalCarrinho * 0.10
+    : 0
+
+  const totalComDesconto =
+    totalCarrinho - desconto
 
   return (
     <>
@@ -56,6 +93,7 @@ function CartSidebar() {
         {carrinho.length === 0 ? (
 
           <div className="cart-empty">
+
             <h3>
               Seu carrinho está vazio
             </h3>
@@ -203,6 +241,7 @@ function CartSidebar() {
                           </button>
 
                         </div>
+
                         <strong className="cart-item-subtotal">
                           R$ {formatarPreco(
                             subtotal
@@ -210,9 +249,7 @@ function CartSidebar() {
                         </strong>
 
                       </div>
-                        <div className="cart-cupom">
-                          <button>Cupom</button>
-                        </div>
+
                     </div>
 
                   </div>
@@ -223,6 +260,66 @@ function CartSidebar() {
             </div>
 
             <div className="cart-footer">
+
+              <div className="cart-cupom">
+
+                <div className="cupom-input-area">
+
+                  <input
+                    type="text"
+                    placeholder="Cupom de desconto"
+                    value={cupom}
+                    onChange={(event) => {
+                      setCupom(event.target.value)
+                      setMensagemCupom("")
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        aplicarCupom()
+                      }
+                    }}
+                    disabled={cupomAplicado}
+                  />
+
+                  {cupomAplicado && (
+                    <button
+                      type="button"
+                      className="cupom-remove"
+                      onClick={removerCupom}
+                    >
+                      ×
+                    </button>
+                  )}
+
+                </div>
+
+                <button
+                  type="button"
+                  className="cupom-button"
+                  onClick={
+                    cupomAplicado
+                      ? removerCupom
+                      : aplicarCupom
+                  }
+                >
+                  {cupomAplicado
+                    ? "Remover"
+                    : "Aplicar"}
+                </button>
+
+              </div>
+
+              {mensagemCupom && (
+                <div
+                  className={
+                    cupomAplicado
+                      ? "cupom-message success"
+                      : "cupom-message error"
+                  }
+                >
+                  {mensagemCupom}
+                </div>
+              )}
 
               <div className="cart-summary">
 
@@ -236,6 +333,22 @@ function CartSidebar() {
                   </span>
                 </div>
 
+                {cupomAplicado && (
+                  <div className="cart-discount">
+
+                    <span>
+                      Desconto (10%)
+                    </span>
+
+                    <strong>
+                      - R$ {formatarPreco(
+                        desconto
+                      )}
+                    </strong>
+
+                  </div>
+                )}
+
                 <div className="cart-total">
 
                   <span>
@@ -244,7 +357,7 @@ function CartSidebar() {
 
                   <strong>
                     R$ {formatarPreco(
-                      totalCarrinho
+                      totalComDesconto
                     )}
                   </strong>
 

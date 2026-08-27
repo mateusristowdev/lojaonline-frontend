@@ -74,13 +74,23 @@ function Header() {
           )}
         </button>
 
-        <button
-          type="button"
-          className="logout-button"
-          onClick={logout}
-        >
-          Sair
-        </button>
+        {usuario ? (
+          <button
+            type="button"
+            className="logout-button"
+            onClick={logout}
+          >
+            Sair
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="login-button"
+            onClick={() => setPage("login")}
+          >
+            Entrar
+          </button>
+        )}
 
       </div>
 

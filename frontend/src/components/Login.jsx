@@ -64,7 +64,6 @@ function LoginPage({ onCadastro, onLogin }) {
 
         </div>
 
-
         <div className="auth-tabs">
 
           <button
@@ -83,7 +82,6 @@ function LoginPage({ onCadastro, onLogin }) {
           </button>
 
         </div>
-
 
         <form onSubmit={submit}>
 
@@ -105,7 +103,6 @@ function LoginPage({ onCadastro, onLogin }) {
 
           </div>
 
-
           <div className="form-group">
 
             <label>
@@ -124,7 +121,6 @@ function LoginPage({ onCadastro, onLogin }) {
 
           </div>
 
-
           <div className="forgot-password">
 
             <button type="button">
@@ -132,7 +128,6 @@ function LoginPage({ onCadastro, onLogin }) {
             </button>
 
           </div>
-
 
           <button
             type="submit"
@@ -142,7 +137,6 @@ function LoginPage({ onCadastro, onLogin }) {
           </button>
 
         </form>
-
 
         <div className="auth-footer">
 

@@ -307,9 +307,114 @@
 }
 
 .cart-cupom {
-    display: flex;
-    color: #ffb300;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.cupom-input-area {
+  position: relative;
+  flex: 1;
+}
+
+.cupom-input-area::before {
+  content: "🏷";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  z-index: 1;
+}
+
+.cupom-input-area input {
+  width: 100%;
+  height: 42px;
+  padding: 0 35px 0 34px;
+  border: 1px solid #dddddd;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #111111;
+  font-family: inherit;
+  font-size: 13px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.cupom-input-area input::placeholder {
+  color: #999999;
+}
+
+.cupom-input-area input:focus {
+  border-color: #ffb300;
+}
+
+.cupom-input-area input:disabled {
+  background: #fafafa;
+}
+
+.cupom-remove {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: #999999;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cupom-remove:hover {
+  color: #111111;
+}
+
+.cupom-button {
+  height: 42px;
+  padding: 0 17px;
+  border: 1px solid #111111;
+  border-radius: 7px;
+  background: #111111;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cupom-button:hover {
+  background: #333333;
+}
+
+.cupom-message {
+  margin: -7px 0 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cupom-message.success {
+  color: #218838;
+}
+
+.cupom-message.error {
+  color: #d93025;
+}
+
+.cart-discount {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: #218838;
+  font-size: 14px;
+}
+
+.cart-discount strong {
+  color: #218838;
+  font-size: 14px;
 }

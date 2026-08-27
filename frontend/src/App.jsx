@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { StoreProvider, useStore } from "./store"
 
 import LoginPage from "./components/Login"
@@ -14,26 +13,30 @@ import CartSidebar from "./components/CartSidebar"
 import "./App.css"
 
 function AppContent() {
+
   const {
     page,
-    usuario
+    usuario,
+    setPage
   } = useStore()
 
-  const [telaAuth, setTelaAuth] = useState("login")
-
-  if (!usuario) {
-    return telaAuth === "login" ? (
+  if (page === "login") {
+    return (
       <LoginPage
-        onCadastro={() => setTelaAuth("cadastro")}
-      />
-    ) : (
-      <Cadastro
-        onLogin={() => setTelaAuth("login")}
+        onCadastro={() => setPage("cadastro")}
       />
     )
   }
 
-  if (usuario.is_admin) {
+  if (page === "cadastro") {
+    return (
+      <Cadastro
+        onLogin={() => setPage("login")}
+      />
+    )
+  }
+
+  if (usuario?.is_admin) {
     return (
       <div className="app">
         <AdminPanel />
@@ -52,8 +55,6 @@ function AppContent() {
 
       {page === "produto" && <ProductDetail />}
 
-      {page === "admin" && <AdminPanel />}
-
       <Footer />
 
       <CartSidebar />
@@ -63,6 +64,7 @@ function AppContent() {
 }
 
 export default function App() {
+
   return (
     <StoreProvider>
       <AppContent />
