@@ -203,7 +203,6 @@ function CartSidebar() {
                           </button>
 
                         </div>
-
                         <strong className="cart-item-subtotal">
                           R$ {formatarPreco(
                             subtotal
@@ -211,7 +210,9 @@ function CartSidebar() {
                         </strong>
 
                       </div>
-
+                        <div className="cart-cupom">
+                          <button>Cupom</button>
+                        </div>
                     </div>
 
                   </div>

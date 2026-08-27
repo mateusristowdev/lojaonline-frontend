@@ -230,7 +230,7 @@ function AdminPanel() {
           >
             {mostrarFormulario
               ? "Fechar"
-              : "+ Novo Produto"}
+              : "Novo Produto"}
           </button>
 
         </div>
