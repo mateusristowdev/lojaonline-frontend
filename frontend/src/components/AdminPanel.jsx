@@ -29,7 +29,7 @@ function AdminPanel() {
     descricao: "",
     preco: "",
     precoOriginal: "",
-    imagem: "",
+    imagem: null,
     estoque: "",
     destaque: false,
     novo: false,
@@ -63,11 +63,13 @@ function AdminPanel() {
   }
 
   function alterarCampo(event) {
+
     const {
       name,
       value,
       type,
-      checked
+      checked,
+      files
     } = event.target
 
     setFormulario({
@@ -75,31 +77,44 @@ function AdminPanel() {
       [name]:
         type === "checkbox"
           ? checked
-          : value
+          : type === "file"
+            ? files[0]
+            : value
     })
   }
 
   async function cadastrarProduto(event) {
+
     event.preventDefault()
 
     try {
+
+      const formData = new FormData()
+
+      formData.append("nome", formulario.nome)
+      formData.append("clube", formulario.clube)
+      formData.append("pais", formulario.pais)
+      formData.append("liga", formulario.liga)
+      formData.append("continente", formulario.continente)
+      formData.append("temporada", formulario.temporada)
+      formData.append("tipo", formulario.tipo)
+      formData.append("marca", formulario.marca)
+      formData.append("cor", formulario.cor)
+      formData.append("descricao", formulario.descricao)
+      formData.append("preco", formulario.preco)
+      formData.append("precoOriginal", formulario.precoOriginal)
+      formData.append("estoque", formulario.estoque)
+      formData.append("destaque", formulario.destaque)
+      formData.append("novo", formulario.novo)
+      formData.append("categoriasId", formulario.categoriasId)
+
+      if (formulario.imagem) {
+        formData.append("imagem", formulario.imagem)
+      }
+
       await apiFetch("/produtos", {
         method: "POST",
-
-        body: JSON.stringify({
-          ...formulario,
-
-          preco: Number(formulario.preco),
-
-          precoOriginal:
-            Number(formulario.precoOriginal),
-
-          estoque:
-            Number(formulario.estoque),
-
-          categoriasId:
-            Number(formulario.categoriasId)
-        })
+        body: formData
       })
 
       alert("Produto cadastrado com sucesso!")
@@ -117,7 +132,7 @@ function AdminPanel() {
         descricao: "",
         preco: "",
         precoOriginal: "",
-        imagem: "",
+        imagem: null,
         estoque: "",
         destaque: false,
         novo: false,
@@ -129,6 +144,7 @@ function AdminPanel() {
       carregarProdutos()
 
     } catch (error) {
+
       console.error(error)
 
       alert(
@@ -361,8 +377,8 @@ function AdminPanel() {
               <input
                 className="admin-input-full"
                 name="imagem"
-                placeholder="URL da imagem"
-                value={formulario.imagem}
+                type="file"
+                accept="image/*"
                 onChange={alterarCampo}
               />
 
@@ -445,7 +461,7 @@ function AdminPanel() {
 
                   {produto.imagem ? (
                     <img
-                      src={produto.imagem}
+                      src={`http://localhost:3000${produto.imagem}`}
                       alt={produto.nome}
                     />
                   ) : (

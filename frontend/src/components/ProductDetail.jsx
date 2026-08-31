@@ -66,7 +66,7 @@ function ProductDetail() {
 
             {produto.imagem ? (
               <img
-                src={produto.imagem}
+                src={`http://localhost:3000/uploads/${produto.imagem}`}
                 alt={produto.nome}
                 className="product-detail-image"
               />

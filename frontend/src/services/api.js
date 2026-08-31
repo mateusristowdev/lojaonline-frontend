@@ -4,29 +4,30 @@ export async function apiFetch(endpoint, options = {}) {
 
   const token = localStorage.getItem("token")
 
+  const headers = {
+    ...(token
+      ? {
+          Authorization: `Bearer ${token}`
+        }
+      : {}),
+
+    ...(options.headers || {})
+  }
+
+  if (!(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json"
+  }
+
   const resposta = await fetch(
     `${API_URL}${endpoint}`,
     {
       ...options,
-
-      headers: {
-        "Content-Type": "application/json",
-
-        ...(token
-          ? {
-              Authorization: `Bearer ${token}`
-            }
-          : {}),
-
-        ...(options.headers || {})
-      }
+      headers
     }
   )
 
-
   const contentType =
     resposta.headers.get("content-type")
-
 
   const dados =
     contentType &&
@@ -34,17 +35,13 @@ export async function apiFetch(endpoint, options = {}) {
       ? await resposta.json()
       : null
 
-
   if (!resposta.ok) {
-
     throw new Error(
       dados?.erro ||
       dados?.detail ||
       "Erro na requisição"
     )
-
   }
-
 
   return dados
 }
