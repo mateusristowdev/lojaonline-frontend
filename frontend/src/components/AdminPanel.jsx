@@ -6,7 +6,6 @@ import "./AdminPanel.css"
 function AdminPanel() {
 
   const {
-    setPage,
     usuario,
     logout
   } = useStore()
@@ -15,6 +14,7 @@ function AdminPanel() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState("")
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
+  const [produtoEditando, setProdutoEditando] = useState(null)
 
   const [formulario, setFormulario] = useState({
     nome: "",
@@ -83,7 +83,87 @@ function AdminPanel() {
     })
   }
 
-  async function cadastrarProduto(event) {
+  function novoProduto() {
+
+    setProdutoEditando(null)
+
+    setFormulario({
+      nome: "",
+      clube: "",
+      pais: "",
+      liga: "",
+      continente: "",
+      temporada: "",
+      tipo: "",
+      marca: "",
+      cor: "",
+      descricao: "",
+      preco: "",
+      precoOriginal: "",
+      imagem: null,
+      estoque: "",
+      destaque: false,
+      novo: false,
+      categoriasId: ""
+    })
+
+    setMostrarFormulario(true)
+  }
+
+  function editarProduto(produto) {
+
+    setProdutoEditando(produto)
+
+    setFormulario({
+      nome: produto.nome || "",
+      clube: produto.clube || "",
+      pais: produto.pais || "",
+      liga: produto.liga || "",
+      continente: produto.continente || "",
+      temporada: produto.temporada || "",
+      tipo: produto.tipo || "",
+      marca: produto.marca || "",
+      cor: produto.cor || "",
+      descricao: produto.descricao || "",
+      preco: produto.preco || "",
+      precoOriginal: produto.precoOriginal || "",
+      imagem: null,
+      estoque: produto.estoque || "",
+      destaque: produto.destaque || false,
+      novo: produto.novo || false,
+      categoriasId: produto.categoriasId || ""
+    })
+
+    setMostrarFormulario(true)
+  }
+
+  function fecharFormulario() {
+
+    setMostrarFormulario(false)
+    setProdutoEditando(null)
+
+    setFormulario({
+      nome: "",
+      clube: "",
+      pais: "",
+      liga: "",
+      continente: "",
+      temporada: "",
+      tipo: "",
+      marca: "",
+      cor: "",
+      descricao: "",
+      preco: "",
+      precoOriginal: "",
+      imagem: null,
+      estoque: "",
+      destaque: false,
+      novo: false,
+      categoriasId: ""
+    })
+  }
+
+  async function salvarProduto(event) {
 
     event.preventDefault()
 
@@ -112,36 +192,34 @@ function AdminPanel() {
         formData.append("imagem", formulario.imagem)
       }
 
-      await apiFetch("/produtos", {
-        method: "POST",
-        body: formData
-      })
+      if (produtoEditando) {
 
-      alert("Produto cadastrado com sucesso!")
+        await apiFetch(
+          `/produtos/${produtoEditando.id}`,
+          {
+            method: "PUT",
+            body: formData
+          }
+        )
 
-      setFormulario({
-        nome: "",
-        clube: "",
-        pais: "",
-        liga: "",
-        continente: "",
-        temporada: "",
-        tipo: "",
-        marca: "",
-        cor: "",
-        descricao: "",
-        preco: "",
-        precoOriginal: "",
-        imagem: null,
-        estoque: "",
-        destaque: false,
-        novo: false,
-        categoriasId: ""
-      })
+        alert("Produto atualizado com sucesso!")
 
-      setMostrarFormulario(false)
+      } else {
 
-      carregarProdutos()
+        await apiFetch(
+          "/produtos",
+          {
+            method: "POST",
+            body: formData
+          }
+        )
+
+        alert("Produto cadastrado com sucesso!")
+      }
+
+      fecharFormulario()
+
+      await carregarProdutos()
 
     } catch (error) {
 
@@ -149,7 +227,7 @@ function AdminPanel() {
 
       alert(
         error.message ||
-        "Erro ao cadastrar produto"
+        "Erro ao salvar produto"
       )
     }
   }
@@ -238,10 +316,10 @@ function AdminPanel() {
 
           <button
             className="admin-new-button"
-            onClick={() =>
-              setMostrarFormulario(
-                !mostrarFormulario
-              )
+            onClick={
+              mostrarFormulario
+                ? fecharFormulario
+                : novoProduto
             }
           >
             {mostrarFormulario
@@ -255,11 +333,13 @@ function AdminPanel() {
 
           <form
             className="admin-form"
-            onSubmit={cadastrarProduto}
+            onSubmit={salvarProduto}
           >
 
             <h2>
-              Novo Produto
+              {produtoEditando
+                ? "Editar Produto"
+                : "Novo Produto"}
             </h2>
 
             <div className="admin-form-grid">
@@ -427,7 +507,9 @@ function AdminPanel() {
               type="submit"
               className="admin-save-button"
             >
-              Cadastrar Produto
+              {produtoEditando
+                ? "Salvar Alterações"
+                : "Cadastrar Produto"}
             </button>
 
           </form>
@@ -510,6 +592,9 @@ function AdminPanel() {
 
                   <button
                     className="admin-edit-button"
+                    onClick={() =>
+                      editarProduto(produto)
+                    }
                   >
                     Editar
                   </button>
