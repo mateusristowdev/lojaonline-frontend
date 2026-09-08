@@ -11,7 +11,6 @@ export function StoreProvider({ children }) {
     useState(null)
 
   const [usuario, setUsuario] = useState(() => {
-
     const usuarioSalvo =
       localStorage.getItem("usuario")
 
@@ -26,6 +25,10 @@ export function StoreProvider({ children }) {
     useState(false)
 
   const [carregandoCarrinho, setCarregandoCarrinho] =
+    useState(false)
+
+  const [cupom, setCupom] = useState("")
+  const [cupomAplicado, setCupomAplicado] =
     useState(false)
 
   async function login(dadosUsuario) {
@@ -45,11 +48,9 @@ export function StoreProvider({ children }) {
         "http://localhost:3000/auth/login",
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json"
           },
-
           body: JSON.stringify({
             email: dadosUsuario.email,
             senha: dadosUsuario.senha
@@ -83,7 +84,6 @@ export function StoreProvider({ children }) {
       )
 
       setUsuario(data.usuario)
-
       setPage("home")
 
       return data
@@ -107,6 +107,10 @@ export function StoreProvider({ children }) {
     setUsuario(null)
     setCarrinho([])
     setCarrinhoAberto(false)
+
+    setCupom("")
+    setCupomAplicado(false)
+
     setPage("home")
   }
 
@@ -141,12 +145,16 @@ export function StoreProvider({ children }) {
     } finally {
 
       setCarregandoCarrinho(false)
+
     }
   }
 
   useEffect(() => {
 
-    if (usuario && !usuario.is_admin) {
+    if (
+      usuario &&
+      !usuario.is_admin
+    ) {
       carregarCarrinho()
     } else {
       setCarrinho([])
@@ -162,7 +170,6 @@ export function StoreProvider({ children }) {
         "/carrinho",
         {
           method: "POST",
-
           body: JSON.stringify({
             produtoId: produto.id,
             quantidade: 1
@@ -222,7 +229,6 @@ export function StoreProvider({ children }) {
           `/carrinho/${itemId}`,
           {
             method: "PATCH",
-
             body: JSON.stringify({
               quantidade
             })
@@ -293,6 +299,9 @@ export function StoreProvider({ children }) {
 
       setCarrinho([])
 
+      setCupom("")
+      setCupomAplicado(false)
+
     } catch (error) {
 
       console.error(
@@ -312,10 +321,38 @@ export function StoreProvider({ children }) {
     setCarrinhoAberto(false)
   }
 
+  function aplicarCupom(codigo) {
+
+    const codigoNormalizado =
+      codigo.trim().toUpperCase()
+
+    if (
+      codigoNormalizado === "MANTO10"
+    ) {
+
+      setCupom(codigoNormalizado)
+      setCupomAplicado(true)
+
+      return true
+    }
+
+    setCupom("")
+    setCupomAplicado(false)
+
+    return false
+  }
+
+  function removerCupom() {
+
+    setCupom("")
+    setCupomAplicado(false)
+  }
+
   const quantidadeItens =
     carrinho.reduce(
       (total, item) =>
-        total + Number(item.quantidade),
+        total +
+        Number(item.quantidade),
       0
     )
 
@@ -328,15 +365,23 @@ export function StoreProvider({ children }) {
       0
     )
 
-  return (
+  const descontoCupom =
+    cupomAplicado
+      ? totalCarrinho * 0.10
+      : 0
 
+  const totalComDesconto =
+    totalCarrinho -
+    descontoCupom
+
+  return (
     <StoreContext.Provider
       value={{
+
         page,
         setPage,
 
         usuario,
-
         login,
         logout,
 
@@ -344,7 +389,6 @@ export function StoreProvider({ children }) {
         setProdutoSelecionado,
 
         carrinho,
-
         adicionarAoCarrinho,
         alterarQuantidade,
         removerDoCarrinho,
@@ -357,12 +401,18 @@ export function StoreProvider({ children }) {
 
         carrinhoAberto,
         abrirCarrinho,
-        fecharCarrinho
+        fecharCarrinho,
+
+        cupom,
+        cupomAplicado,
+        aplicarCupom,
+        removerCupom,
+        descontoCupom,
+        totalComDesconto
+
       }}
     >
-
       {children}
-
     </StoreContext.Provider>
   )
 }

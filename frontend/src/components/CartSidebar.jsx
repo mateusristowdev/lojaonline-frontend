@@ -10,12 +10,17 @@ function CartSidebar() {
     fecharCarrinho,
     alterarQuantidade,
     removerDoCarrinho,
-    totalCarrinho,
-    quantidadeItens
+    quantidadeItens,
+    setPage,
+    cupom,
+    cupomAplicado,
+    aplicarCupom,
+    removerCupom,
+    descontoCupom,
+    totalComDesconto
   } = useStore()
 
-  const [cupom, setCupom] = useState("")
-  const [cupomAplicado, setCupomAplicado] = useState(false)
+  const [cupomInput, setCupomInput] = useState(cupom || "")
   const [mensagemCupom, setMensagemCupom] = useState("")
 
   if (!carrinhoAberto) {
@@ -28,37 +33,39 @@ function CartSidebar() {
       .replace(".", ",")
   }
 
-  function aplicarCupom() {
+  function aplicarCupomCarrinho() {
 
-    const codigo = cupom.trim().toUpperCase()
+    const codigo =
+      cupomInput.trim().toUpperCase()
 
     if (!codigo) {
       setMensagemCupom("Digite um cupom.")
       return
     }
 
-    if (codigo === "MANTO10") {
-      setCupomAplicado(true)
-      setMensagemCupom("Cupom aplicado com sucesso!")
-      return
-    }
+    const sucesso = aplicarCupom(codigo)
 
-    setCupomAplicado(false)
-    setMensagemCupom("Cupom inválido.")
+    if (sucesso) {
+      setMensagemCupom(
+        "Cupom aplicado com sucesso!"
+      )
+    } else {
+      setMensagemCupom(
+        "Cupom inválido."
+      )
+    }
   }
 
-  function removerCupom() {
-    setCupom("")
-    setCupomAplicado(false)
+  function removerCupomCarrinho() {
+    removerCupom()
+    setCupomInput("")
     setMensagemCupom("")
   }
 
-  const desconto = cupomAplicado
-    ? totalCarrinho * 0.10
-    : 0
-
-  const totalComDesconto =
-    totalCarrinho - desconto
+  function irParaCheckout() {
+    fecharCarrinho()
+    setPage("checkout")
+  }
 
   return (
     <>
@@ -72,6 +79,7 @@ function CartSidebar() {
         <div className="cart-header">
 
           <div>
+
             <span className="cart-label">
               SEU CARRINHO
             </span>
@@ -79,6 +87,7 @@ function CartSidebar() {
             <h2>
               Carrinho
             </h2>
+
           </div>
 
           <button
@@ -200,10 +209,12 @@ function CartSidebar() {
                               if (
                                 item.quantidade > 1
                               ) {
+
                                 alterarQuantidade(
                                   item.id,
                                   item.quantidade - 1
                                 )
+
                               }
 
                             }}
@@ -225,10 +236,12 @@ function CartSidebar() {
                                 item.quantidade <
                                 produto.estoque
                               ) {
+
                                 alterarQuantidade(
                                   item.id,
                                   item.quantidade + 1
                                 )
+
                               }
 
                             }}
@@ -255,6 +268,7 @@ function CartSidebar() {
                   </div>
 
                 )
+
               })}
 
             </div>
@@ -268,27 +282,42 @@ function CartSidebar() {
                   <input
                     type="text"
                     placeholder="Cupom de desconto"
-                    value={cupom}
+                    value={cupomInput}
                     onChange={(event) => {
-                      setCupom(event.target.value)
+
+                      setCupomInput(
+                        event.target.value
+                      )
+
                       setMensagemCupom("")
+
                     }}
                     onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        aplicarCupom()
+
+                      if (
+                        event.key === "Enter"
+                      ) {
+
+                        aplicarCupomCarrinho()
+
                       }
+
                     }}
                     disabled={cupomAplicado}
                   />
 
                   {cupomAplicado && (
+
                     <button
                       type="button"
                       className="cupom-remove"
-                      onClick={removerCupom}
+                      onClick={
+                        removerCupomCarrinho
+                      }
                     >
                       ×
                     </button>
+
                   )}
 
                 </div>
@@ -298,8 +327,8 @@ function CartSidebar() {
                   className="cupom-button"
                   onClick={
                     cupomAplicado
-                      ? removerCupom
-                      : aplicarCupom
+                      ? removerCupomCarrinho
+                      : aplicarCupomCarrinho
                   }
                 >
                   {cupomAplicado
@@ -310,6 +339,7 @@ function CartSidebar() {
               </div>
 
               {mensagemCupom && (
+
                 <div
                   className={
                     cupomAplicado
@@ -319,11 +349,13 @@ function CartSidebar() {
                 >
                   {mensagemCupom}
                 </div>
+
               )}
 
               <div className="cart-summary">
 
                 <div>
+
                   <span>
                     Produtos
                   </span>
@@ -331,9 +363,11 @@ function CartSidebar() {
                   <span>
                     {quantidadeItens}
                   </span>
+
                 </div>
 
                 {cupomAplicado && (
+
                   <div className="cart-discount">
 
                     <span>
@@ -342,11 +376,12 @@ function CartSidebar() {
 
                     <strong>
                       - R$ {formatarPreco(
-                        desconto
+                        descontoCupom
                       )}
                     </strong>
 
                   </div>
+
                 )}
 
                 <div className="cart-total">
@@ -367,9 +402,7 @@ function CartSidebar() {
 
               <button
                 className="cart-checkout"
-                onClick={() => {
-                  fecharCarrinho()
-                }}
+                onClick={irParaCheckout}
               >
                 FINALIZAR COMPRA
               </button>

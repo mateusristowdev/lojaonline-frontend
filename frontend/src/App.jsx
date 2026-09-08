@@ -5,6 +5,7 @@ import Cadastro from "./components/Cadastro"
 import HomePage from "./components/HomePage"
 import ProductsPage from "./components/ProductsPage"
 import ProductDetail from "./components/ProductDetail"
+import CheckoutPage from "./components/CheckoutPage"
 import AdminPanel from "./components/AdminPanel"
 import Header from "./components/Header"
 import Footer from "./components/Footer"
@@ -54,6 +55,8 @@ function AppContent() {
       {page === "produtos" && <ProductsPage />}
 
       {page === "produto" && <ProductDetail />}
+
+      {page === "checkout" && <CheckoutPage/>}
 
       <Footer />
 
