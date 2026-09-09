@@ -15,7 +15,6 @@ function CheckoutPage() {
   const [nome, setNome] = useState("")
   const [email, setEmail] = useState("")
   const [telefone, setTelefone] = useState("")
-
   const [cep, setCep] = useState("")
   const [rua, setRua] = useState("")
   const [numero, setNumero] = useState("")
@@ -23,7 +22,6 @@ function CheckoutPage() {
   const [bairro, setBairro] = useState("")
   const [cidade, setCidade] = useState("")
   const [estado, setEstado] = useState("")
-
   const [pagamento, setPagamento] = useState("pix")
 
   const [pedidoFinalizado, setPedidoFinalizado] =
@@ -89,8 +87,8 @@ function CheckoutPage() {
 
         <div className="checkout-success">
 
-          <div className="success-icon">
-            ✓
+          <div className="success-message">
+            OK
           </div>
 
           <span>
@@ -177,7 +175,7 @@ function CheckoutPage() {
               setPage("home")
             }}
           >
-            ← CONTINUAR COMPRANDO
+             CONTINUAR COMPRANDO
           </button>
 
         </div>
@@ -291,7 +289,7 @@ function CheckoutPage() {
 
                   <input
                     type="text"
-                    placeholder="PR"
+                    placeholder="SP"
                     value={estado}
                     onChange={(event) =>
                       setEstado(event.target.value)
