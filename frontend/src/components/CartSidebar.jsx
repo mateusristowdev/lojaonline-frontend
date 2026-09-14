@@ -148,7 +148,7 @@ function CartSidebar() {
                       {produto.imagem ? (
 
                         <img
-                          src={`http://localhost:3000/uploads/${produto.imagem}`}
+                          src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}   
                           alt={produto.nome}
                         />
 
