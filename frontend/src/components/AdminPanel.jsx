@@ -543,7 +543,7 @@ function AdminPanel() {
 
                   {produto.imagem ? (
                     <img
-                      src={`http://localhost:3000${produto.imagem}`}
+                      src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
                       alt={produto.nome}
                     />
                   ) : (
