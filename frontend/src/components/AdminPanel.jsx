@@ -33,7 +33,11 @@ function AdminPanel() {
     estoque: "",
     destaque: false,
     novo: false,
-    categoriasId: ""
+    categoriasId: "",
+    peso: "",
+    altura: "",
+    largura: "",
+    comprimento: ""
   })
 
   useEffect(() => {
@@ -104,7 +108,11 @@ function AdminPanel() {
       estoque: "",
       destaque: false,
       novo: false,
-      categoriasId: ""
+      categoriasId: "",
+      peso: "",
+      altura: "",
+      largura: "",
+      comprimento: ""
     })
 
     setMostrarFormulario(true)
@@ -125,13 +133,17 @@ function AdminPanel() {
       marca: produto.marca || "",
       cor: produto.cor || "",
       descricao: produto.descricao || "",
-      preco: produto.preco || "",
-      precoOriginal: produto.precoOriginal || "",
+      preco: produto.preco ?? "",
+      precoOriginal: produto.precoOriginal ?? "",
       imagem: null,
-      estoque: produto.estoque || "",
+      estoque: produto.estoque ?? "",
       destaque: produto.destaque || false,
       novo: produto.novo || false,
-      categoriasId: produto.categoriasId || ""
+      categoriasId: produto.categoriasId ?? "",
+      peso: produto.peso ?? "",
+      altura: produto.altura ?? "",
+      largura: produto.largura ?? "",
+      comprimento: produto.comprimento ?? ""
     })
 
     setMostrarFormulario(true)
@@ -159,7 +171,12 @@ function AdminPanel() {
       estoque: "",
       destaque: false,
       novo: false,
-      categoriasId: ""
+      categoriasId: "",
+
+      peso: "",
+      altura: "",
+      largura: "",
+      comprimento: ""
     })
   }
 
@@ -187,6 +204,10 @@ function AdminPanel() {
       formData.append("destaque", formulario.destaque)
       formData.append("novo", formulario.novo)
       formData.append("categoriasId", formulario.categoriasId)
+      formData.append("peso", formulario.peso)
+      formData.append("altura", formulario.altura)
+      formData.append("largura", formulario.largura)
+      formData.append("comprimento", formulario.comprimento)
 
       if (formulario.imagem) {
         formData.append("imagem", formulario.imagem)
@@ -450,6 +471,50 @@ function AdminPanel() {
                 type="number"
                 placeholder="ID da categoria"
                 value={formulario.categoriasId}
+                onChange={alterarCampo}
+                required
+              />
+
+              <input
+                name="peso"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Peso (kg)"
+                value={formulario.peso}
+                onChange={alterarCampo}
+                required
+              />
+
+              <input
+                name="altura"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Altura (cm)"
+                value={formulario.altura}
+                onChange={alterarCampo}
+                required
+              />
+
+              <input
+                name="largura"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Largura (cm)"
+                value={formulario.largura}
+                onChange={alterarCampo}
+                required
+              />
+
+              <input
+                name="comprimento"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Comprimento (cm)"
+                value={formulario.comprimento}
                 onChange={alterarCampo}
                 required
               />
