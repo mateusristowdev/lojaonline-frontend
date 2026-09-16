@@ -123,7 +123,10 @@ function CheckoutPage() {
         "Produtos enviados para cálculo do frete:"
       )
 
-      console.log(produtos)
+      console.log(
+        "DADOS DO PRODUTO:",
+        JSON.stringify(produtos, null, 2)
+      )
 
 
       const response = await fetch(
