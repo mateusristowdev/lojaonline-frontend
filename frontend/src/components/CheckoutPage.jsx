@@ -10,7 +10,9 @@ function CheckoutPage() {
     setPage,
     limparCarrinho,
     cupom,
-    cupomAplicado
+    cupomAplicado,
+    descontoCupom,
+    totalComDesconto
   } = useStore()
 
   const [nome, setNome] = useState("")
@@ -32,41 +34,20 @@ function CheckoutPage() {
   const [pedidoFinalizado, setPedidoFinalizado] = useState(false)
 
   function formatarPreco(valor) {
-    return Number(valor || 0)
-      .toFixed(2)
-      .replace(".", ",")
+    return Number(valor || 0).toFixed(2).replace(".", ",")
   }
 
-  const descontoCupom = cupomAplicado
-    ? totalCarrinho * 0.1
-    : 0
-
-  const totalComDesconto =
-    totalCarrinho - descontoCupom
-
   function formatarCep(valor) {
-    const numeros = valor
-      .replace(/\D/g, "")
-      .slice(0, 8)
-
-    if (numeros.length <= 5) {
-      return numeros
-    }
-
+    const numeros = valor.replace(/\D/g, "").slice(0, 8)
+    if (numeros.length <= 5) return numeros
     return `${numeros.slice(0, 5)}-${numeros.slice(5)}`
   }
 
   function formatarTelefone(valor) {
-    const numeros = valor
-      .replace(/\D/g, "")
-      .slice(0, 11)
-
-    if (numeros.length === 0) {
-      return ""
-    }
+    const numeros = valor.replace(/\D/g, "").slice(0, 11)
 
     if (numeros.length <= 2) {
-      return `(${numeros}`
+      return numeros.length ? `(${numeros}` : ""
     }
 
     if (numeros.length <= 7) {
@@ -81,12 +62,9 @@ function CheckoutPage() {
   }
 
   async function buscarCep(valor) {
-    const cepLimpo = valor
-      .replace(/\D/g, "")
+    const cepLimpo = valor.replace(/\D/g, "")
 
-    if (cepLimpo.length !== 8) {
-      return
-    }
+    if (cepLimpo.length !== 8) return
 
     try {
       setConsultandoCep(true)
@@ -97,9 +75,7 @@ function CheckoutPage() {
       )
 
       if (!resposta.ok) {
-        throw new Error(
-          "Não foi possível consultar o CEP."
-        )
+        throw new Error("Não foi possível consultar o CEP.")
       }
 
       const dados = await resposta.json()
@@ -119,16 +95,25 @@ function CheckoutPage() {
       setEstado(dados.uf || "")
       setErroFrete("")
     } catch (error) {
-      console.error(
-        "Erro ao consultar CEP:",
-        error
-      )
-
-      setErroFrete(
-        "Não foi possível consultar o CEP."
-      )
+      console.error("Erro ao consultar CEP:", error)
+      setErroFrete("Não foi possível consultar o CEP.")
     } finally {
       setConsultandoCep(false)
+    }
+  }
+
+  function alterarCep(valor) {
+    const novoCep = formatarCep(valor)
+
+    setCep(novoCep)
+    setFretes([])
+    setFreteSelecionado(null)
+    setErroFrete("")
+
+    const cepLimpo = novoCep.replace(/\D/g, "")
+
+    if (cepLimpo.length === 8) {
+      buscarCep(novoCep)
     }
   }
 
@@ -137,15 +122,15 @@ function CheckoutPage() {
 
     if (cepLimpo.length !== 8) {
       setErroFrete("Digite um CEP válido.")
+      setFretes([])
+      setFreteSelecionado(null)
       return
     }
 
     const token = localStorage.getItem("token")
 
     if (!token) {
-      setErroFrete(
-        "Entre na sua conta para calcular o frete."
-      )
+      setErroFrete("Entre na sua conta para calcular o frete.")
       return
     }
 
@@ -169,9 +154,7 @@ function CheckoutPage() {
           peso: Number(produto.peso || 1),
           altura: Number(produto.altura || 10),
           largura: Number(produto.largura || 20),
-          comprimento: Number(
-            produto.comprimento || 30
-          ),
+          comprimento: Number(produto.comprimento || 30),
           valor: Number(produto.preco || 0),
           quantidade: Number(item.quantidade || 1)
         }
@@ -196,21 +179,17 @@ function CheckoutPage() {
 
       if (!response.ok) {
         throw new Error(
-          data.erro ||
-          "Não foi possível calcular o frete."
+          data.erro || "Não foi possível calcular o frete."
         )
       }
 
-      const fretesDisponiveis =
-        Array.isArray(data.fretes)
-          ? data.fretes.filter(
-              frete =>
-                !frete.error &&
-                Number.isFinite(
-                  Number(frete.price)
-                )
-            )
-          : []
+      const fretesDisponiveis = Array.isArray(data.fretes)
+        ? data.fretes.filter(
+            frete =>
+              !frete.error &&
+              Number.isFinite(Number(frete.price))
+          )
+        : []
 
       if (!fretesDisponiveis.length) {
         throw new Error(
@@ -219,40 +198,14 @@ function CheckoutPage() {
       }
 
       setFretes(fretesDisponiveis)
-      setFreteSelecionado(
-        fretesDisponiveis[0]
-      )
+      setFreteSelecionado(fretesDisponiveis[0])
     } catch (error) {
-      console.error(
-        "Erro ao calcular frete:",
-        error
-      )
-
+      console.error("Erro ao calcular frete:", error)
       setErroFrete(
-        error.message ||
-        "Não foi possível calcular o frete."
+        error.message || "Não foi possível calcular o frete."
       )
     } finally {
       setCalculandoFrete(false)
-    }
-  }
-
-  function alterarCep(valor) {
-    const novoCep = formatarCep(valor)
-
-    setCep(novoCep)
-
-    setFretes([])
-    setFreteSelecionado(null)
-    setErroFrete("")
-
-    const cepLimpo = novoCep.replace(
-      /\D/g,
-      ""
-    )
-
-    if (cepLimpo.length === 8) {
-      buscarCep(novoCep)
     }
   }
 
@@ -261,7 +214,7 @@ function CheckoutPage() {
     : 0
 
   const totalFinal =
-    totalComDesconto + valorFrete
+    Number(totalComDesconto || totalCarrinho) + valorFrete
 
   async function finalizarPedido() {
     if (
@@ -275,23 +228,17 @@ function CheckoutPage() {
       !cidade ||
       !estado
     ) {
-      alert(
-        "Preencha todos os campos obrigatórios."
-      )
+      alert("Preencha todos os campos obrigatórios.")
       return
     }
 
     if (!freteSelecionado) {
-      alert(
-        "Calcule e selecione uma opção de frete."
-      )
+      alert("Calcule e selecione uma opção de frete.")
       return
     }
 
     if (!pagamento) {
-      alert(
-        "Selecione uma forma de pagamento."
-      )
+      alert("Selecione uma forma de pagamento.")
       return
     }
 
@@ -299,11 +246,8 @@ function CheckoutPage() {
       await limparCarrinho()
       setPedidoFinalizado(true)
     } catch (error) {
-      console.error(error)
-
-      alert(
-        "Não foi possível finalizar o pedido."
-      )
+      console.error("Erro ao finalizar pedido:", error)
+      alert("Não foi possível finalizar o pedido.")
     }
   }
 
@@ -311,31 +255,16 @@ function CheckoutPage() {
     return (
       <main className="checkout-page">
         <div className="checkout-success">
-
-          <div className="success-message">
-            OK
-          </div>
-
-          <span>
-            PEDIDO REALIZADO
-          </span>
-
-          <h1>
-            Compra finalizada com sucesso!
-          </h1>
-
+          <div className="success-message">OK</div>
+          <span>PEDIDO REALIZADO</span>
+          <h1>Compra finalizada com sucesso!</h1>
           <p>
-            Obrigado pela sua compra. Seu pedido
-            foi recebido e será preparado para
-            envio.
+            Obrigado pela sua compra. Seu pedido foi recebido e será
+            preparado para envio.
           </p>
-
-          <button
-            onClick={() => setPage("home")}
-          >
+          <button onClick={() => setPage("home")}>
             CONTINUAR COMPRANDO
           </button>
-
         </div>
       </main>
     )
@@ -345,22 +274,13 @@ function CheckoutPage() {
     return (
       <main className="checkout-page">
         <div className="checkout-empty">
-
-          <h1>
-            Seu carrinho está vazio
-          </h1>
-
+          <h1>Seu carrinho está vazio</h1>
           <p>
-            Adicione alguns produtos antes de
-            finalizar a compra.
+            Adicione alguns produtos antes de finalizar a compra.
           </p>
-
-          <button
-            onClick={() => setPage("camisas")}
-          >
+          <button onClick={() => setPage("camisas")}>
             VER PRODUTOS
           </button>
-
         </div>
       </main>
     )
@@ -368,263 +288,181 @@ function CheckoutPage() {
 
   return (
     <main className="checkout-page">
-
       <div className="checkout-container">
-
         <div className="checkout-title">
-
           <div>
-            <span>
-              FINALIZAR COMPRA
-            </span>
-
-            <h1>
-              Checkout
-            </h1>
+            <span>FINALIZAR COMPRA</span>
+            <h1>Checkout</h1>
           </div>
-
           <button
             className="checkout-back"
             onClick={() => setPage("home")}
           >
             CONTINUAR COMPRANDO
           </button>
-
         </div>
 
         <div className="checkout-content">
-
           <div className="checkout-form">
 
             <section className="checkout-section">
-
-              <h2>
-                1. Dados pessoais
-              </h2>
-
+              <h2>1. Dados pessoais</h2>
               <div className="checkout-grid">
-
                 <div className="checkout-field full">
-
-                  <label>
-                    Nome completo *
-                  </label>
-
+                  <label>Nome completo *</label>
                   <input
                     type="text"
                     placeholder="Digite seu nome completo"
                     value={nome}
-                    onChange={e =>
-                      setNome(e.target.value)
-                    }
+                    onChange={event => setNome(event.target.value)}
                   />
-
                 </div>
 
                 <div className="checkout-field">
-
-                  <label>
-                    E-mail *
-                  </label>
-
+                  <label>E-mail *</label>
                   <input
                     type="email"
                     placeholder="seu@email.com"
                     value={email}
-                    onChange={e =>
-                      setEmail(e.target.value)
-                    }
+                    onChange={event => setEmail(event.target.value)}
                   />
-
                 </div>
 
                 <div className="checkout-field">
-
-                  <label>
-                    Telefone *
-                  </label>
-
+                  <label>Telefone *</label>
                   <input
                     type="text"
                     placeholder="(00) 00000-0000"
                     value={telefone}
                     maxLength={15}
-                    onChange={e =>
-                      setTelefone(
-                        formatarTelefone(
-                          e.target.value
-                        )
-                      )
+                    onChange={event =>
+                      setTelefone(formatarTelefone(event.target.value))
                     }
                   />
-
                 </div>
-
               </div>
-
             </section>
 
             <section className="checkout-section">
-
-              <h2>
-                2. Endereço de entrega
-              </h2>
+              <h2>2. Endereço de entrega</h2>
 
               <div className="checkout-grid">
-
                 <div className="checkout-field">
+                  <label>CEP *</label>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "10px"
+                    }}
+                  >
+                    <input
+                      type="text"
+                      placeholder="00000-000"
+                      value={cep}
+                      maxLength={9}
+                      onChange={event =>
+                        alterarCep(event.target.value)
+                      }
+                    />
 
-                  <label>
-                    CEP *
-                  </label>
-
-                  <input
-                    type="text"
-                    placeholder="00000-000"
-                    value={cep}
-                    maxLength={9}
-                    onChange={e =>
-                      alterarCep(
-                        e.target.value
-                      )
-                    }
-                  />
+                    <button
+                      type="button"
+                      onClick={calcularFrete}
+                      disabled={calculandoFrete || consultandoCep}
+                      style={{
+                        whiteSpace: "nowrap",
+                        cursor:
+                          calculandoFrete || consultandoCep
+                            ? "wait"
+                            : "pointer"
+                      }}
+                    >
+                      {consultandoCep
+                        ? "BUSCANDO..."
+                        : calculandoFrete
+                          ? "CALCULANDO..."
+                          : "CALCULAR FRETE"}
+                    </button>
+                  </div>
 
                   {consultandoCep && (
-                    <small>
-                      Buscando endereço...
-                    </small>
+                    <small>Buscando endereço...</small>
                   )}
-
                 </div>
 
                 <div className="checkout-field">
-
-                  <label>
-                    Estado *
-                  </label>
-
+                  <label>Estado *</label>
                   <input
                     type="text"
                     placeholder="PR"
                     value={estado}
                     maxLength={2}
-                    onChange={e =>
+                    onChange={event =>
                       setEstado(
-                        e.target.value.toUpperCase()
+                        event.target.value.toUpperCase()
                       )
                     }
                   />
-
                 </div>
 
                 <div className="checkout-field full">
-
-                  <label>
-                    Rua *
-                  </label>
-
+                  <label>Rua *</label>
                   <input
                     type="text"
                     placeholder="Nome da rua"
                     value={rua}
-                    onChange={e =>
-                      setRua(e.target.value)
-                    }
+                    onChange={event => setRua(event.target.value)}
                   />
-
                 </div>
 
                 <div className="checkout-field">
-
-                  <label>
-                    Número *
-                  </label>
-
+                  <label>Número *</label>
                   <input
                     type="text"
                     placeholder="123"
                     value={numero}
-                    onChange={e =>
-                      setNumero(e.target.value)
+                    onChange={event =>
+                      setNumero(event.target.value)
                     }
                   />
-
                 </div>
 
                 <div className="checkout-field">
-
-                  <label>
-                    Complemento
-                  </label>
-
+                  <label>Complemento</label>
                   <input
                     type="text"
                     placeholder="Apartamento, bloco..."
                     value={complemento}
-                    onChange={e =>
-                      setComplemento(
-                        e.target.value
-                      )
+                    onChange={event =>
+                      setComplemento(event.target.value)
                     }
                   />
-
                 </div>
 
                 <div className="checkout-field">
-
-                  <label>
-                    Bairro *
-                  </label>
-
+                  <label>Bairro *</label>
                   <input
                     type="text"
                     placeholder="Seu bairro"
                     value={bairro}
-                    onChange={e =>
-                      setBairro(e.target.value)
+                    onChange={event =>
+                      setBairro(event.target.value)
                     }
                   />
-
                 </div>
 
                 <div className="checkout-field">
-
-                  <label>
-                    Cidade *
-                  </label>
-
+                  <label>Cidade *</label>
                   <input
                     type="text"
                     placeholder="Sua cidade"
                     value={cidade}
-                    onChange={e =>
-                      setCidade(e.target.value)
+                    onChange={event =>
+                      setCidade(event.target.value)
                     }
                   />
-
                 </div>
-
               </div>
-
-              {erroFrete && (
-                <div className="shipping-error">
-                  {erroFrete}
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={calcularFrete}
-                disabled={
-                  calculandoFrete ||
-                  consultandoCep
-                }
-              >
-                {calculandoFrete
-                  ? "CALCULANDO..."
-                  : "CALCULAR FRETE"}
-              </button>
 
               {calculandoFrete && (
                 <div className="shipping-loading">
@@ -632,18 +470,19 @@ function CheckoutPage() {
                 </div>
               )}
 
+              {erroFrete && (
+                <div className="shipping-error">
+                  {erroFrete}
+                </div>
+              )}
+
               {fretes.length > 0 && (
                 <div className="shipping-options">
-
-                  <h3>
-                    Opções de entrega
-                  </h3>
+                  <h3>Opções de entrega</h3>
 
                   {fretes.map(frete => {
-
                     const selecionado =
-                      freteSelecionado?.id ===
-                      frete.id
+                      freteSelecionado?.id === frete.id
 
                     return (
                       <label
@@ -654,65 +493,42 @@ function CheckoutPage() {
                             : "shipping-option"
                         }
                       >
-
                         <input
                           type="radio"
                           name="frete"
                           checked={selecionado}
                           onChange={() =>
-                            setFreteSelecionado(
-                              frete
-                            )
+                            setFreteSelecionado(frete)
                           }
                         />
 
                         <div className="shipping-info">
-
-                          <strong>
-                            {frete.name}
-                          </strong>
-
+                          <strong>{frete.name}</strong>
                           <span>
                             {frete.company?.name ||
                               "Transportadora"}
                           </span>
-
                           <small>
                             Prazo estimado:{" "}
-                            {frete.delivery_range?.min ??
-                              "—"}
-                            –
-                            {frete.delivery_range?.max ??
-                              "—"}{" "}
-                            dias
+                            {frete.delivery_range?.min ?? "—"}–
+                            {frete.delivery_range?.max ?? "—"} dias
                           </small>
-
                         </div>
 
                         <strong className="shipping-price">
-                          R${" "}
-                          {formatarPreco(
-                            frete.price
-                          )}
+                          R$ {formatarPreco(frete.price)}
                         </strong>
-
                       </label>
                     )
                   })}
-
                 </div>
               )}
-
             </section>
 
             <section className="checkout-section">
-
-              <h2>
-                3. Forma de pagamento
-              </h2>
+              <h2>3. Forma de pagamento</h2>
 
               <div className="payment-options">
-
                 <label
                   className={
                     pagamento === "pix"
@@ -720,33 +536,19 @@ function CheckoutPage() {
                       : "payment-option"
                   }
                 >
-
                   <input
                     type="radio"
                     name="pagamento"
                     value="pix"
-                    checked={
-                      pagamento === "pix"
-                    }
-                    onChange={e =>
-                      setPagamento(
-                        e.target.value
-                      )
+                    checked={pagamento === "pix"}
+                    onChange={event =>
+                      setPagamento(event.target.value)
                     }
                   />
-
                   <div>
-
-                    <strong>
-                      PIX
-                    </strong>
-
-                    <span>
-                      Pagamento instantâneo
-                    </span>
-
+                    <strong>PIX</strong>
+                    <span>Pagamento instantâneo</span>
                   </div>
-
                 </label>
 
                 <label
@@ -756,33 +558,19 @@ function CheckoutPage() {
                       : "payment-option"
                   }
                 >
-
                   <input
                     type="radio"
                     name="pagamento"
                     value="cartao"
-                    checked={
-                      pagamento === "cartao"
-                    }
-                    onChange={e =>
-                      setPagamento(
-                        e.target.value
-                      )
+                    checked={pagamento === "cartao"}
+                    onChange={event =>
+                      setPagamento(event.target.value)
                     }
                   />
-
                   <div>
-
-                    <strong>
-                      Cartão de crédito
-                    </strong>
-
-                    <span>
-                      Pague sua compra com cartão
-                    </span>
-
+                    <strong>Cartão de crédito</strong>
+                    <span>Pague sua compra com cartão</span>
                   </div>
-
                 </label>
 
                 <label
@@ -792,207 +580,120 @@ function CheckoutPage() {
                       : "payment-option"
                   }
                 >
-
                   <input
                     type="radio"
                     name="pagamento"
                     value="boleto"
-                    checked={
-                      pagamento === "boleto"
-                    }
-                    onChange={e =>
-                      setPagamento(
-                        e.target.value
-                      )
+                    checked={pagamento === "boleto"}
+                    onChange={event =>
+                      setPagamento(event.target.value)
                     }
                   />
-
                   <div>
-
-                    <strong>
-                      Boleto bancário
-                    </strong>
-
-                    <span>
-                      Pagamento via boleto
-                    </span>
-
+                    <strong>Boleto bancário</strong>
+                    <span>Pagamento via boleto</span>
                   </div>
-
                 </label>
-
               </div>
-
             </section>
-
           </div>
 
           <aside className="checkout-summary">
-
             <div className="summary-card">
-
               <span className="summary-label">
                 RESUMO DO PEDIDO
               </span>
 
-              <h2>
-                Seu pedido
-              </h2>
+              <h2>Seu pedido</h2>
 
               <div className="checkout-products">
-
                 {carrinho.map(item => {
-
-                  const produto =
-                    item.produtos
+                  const produto = item.produtos
 
                   return (
                     <div
                       className="checkout-product"
                       key={item.id}
                     >
-
                       <div className="checkout-product-image">
-
                         {produto.imagem ? (
                           <img
                             src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
                             alt={produto.nome}
                           />
                         ) : (
-                          <span>
-                            CAMISA
-                          </span>
+                          <span>CAMISA</span>
                         )}
-
                       </div>
 
                       <div className="checkout-product-info">
-
-                        <h3>
-                          {produto.nome}
-                        </h3>
-
+                        <h3>{produto.nome}</h3>
                         <span>
-                          Quantidade:{" "}
-                          {item.quantidade}
+                          Quantidade: {item.quantidade}
                         </span>
-
                         <strong>
                           R${" "}
                           {formatarPreco(
-                            Number(
-                              produto.preco || 0
-                            ) *
-                            Number(
-                              item.quantidade || 0
-                            )
+                            Number(produto.preco || 0) *
+                              Number(item.quantidade || 0)
                           )}
                         </strong>
-
                       </div>
-
                     </div>
                   )
                 })}
-
               </div>
 
               <div className="checkout-summary-values">
-
                 <div>
-                  <span>
-                    Produtos
-                  </span>
-
-                  <span>
-                    {quantidadeItens}
-                  </span>
+                  <span>Produtos</span>
+                  <span>{quantidadeItens}</span>
                 </div>
 
                 <div>
-                  <span>
-                    Subtotal
-                  </span>
-
+                  <span>Subtotal</span>
                   <strong>
-                    R${" "}
-                    {formatarPreco(
-                      totalCarrinho
-                    )}
+                    R$ {formatarPreco(totalCarrinho)}
                   </strong>
                 </div>
 
                 {cupomAplicado && (
                   <div className="checkout-discount">
-
-                    <span>
-                      Cupom {cupom}
-                    </span>
-
+                    <span>Cupom {cupom}</span>
                     <strong>
-                      - R${" "}
-                      {formatarPreco(
-                        descontoCupom
-                      )}
+                      - R$ {formatarPreco(descontoCupom)}
                     </strong>
-
                   </div>
                 )}
 
                 {cupomAplicado && (
                   <div>
-
-                    <span>
-                      Total com desconto
-                    </span>
-
+                    <span>Total com desconto</span>
                     <strong>
-                      R${" "}
-                      {formatarPreco(
-                        totalComDesconto
-                      )}
+                      R$ {formatarPreco(totalComDesconto)}
                     </strong>
-
                   </div>
                 )}
 
                 <div>
-
-                  <span>
-                    Frete
-                  </span>
-
+                  <span>Frete</span>
                   {freteSelecionado ? (
                     <strong>
-                      R${" "}
-                      {formatarPreco(
-                        valorFrete
-                      )}
+                      R$ {formatarPreco(valorFrete)}
                     </strong>
                   ) : (
                     <strong className="free-shipping">
                       Calcule o frete
                     </strong>
                   )}
-
                 </div>
 
                 <div className="checkout-total">
-
-                  <span>
-                    Total
-                  </span>
-
+                  <span>Total</span>
                   <strong>
-                    R${" "}
-                    {formatarPreco(
-                      totalFinal
-                    )}
+                    R$ {formatarPreco(totalFinal)}
                   </strong>
-
                 </div>
-
               </div>
 
               <button
@@ -1006,15 +707,10 @@ function CheckoutPage() {
               <p className="checkout-security">
                 Compra segura e protegida
               </p>
-
             </div>
-
           </aside>
-
         </div>
-
       </div>
-
     </main>
   )
 }

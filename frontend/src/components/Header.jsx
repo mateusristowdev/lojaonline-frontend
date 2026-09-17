@@ -19,51 +19,27 @@ function Header() {
       </div>
 
       <nav className="header-menu">
-        <button
-          type="button"
-          className={page === "home" ? "active" : ""}
-          onClick={() => setPage("home")}
-        >
+        <button type="button" onClick={() => setPage("home")}>
           Início
         </button>
 
-        <button
-          type="button"
-          className={page === "camisas" ? "active" : ""}
-          onClick={() => setPage("camisas")}
-        >
+        <button type="button" onClick={() => setPage("camisas")}>
           Camisas
         </button>
 
-        <button
-          type="button"
-          className={page === "clubes" ? "active" : ""}
-          onClick={() => setPage("clubes")}
-        >
+        <button type="button" onClick={() => setPage("clubes")}>
           Clubes
         </button>
 
-        <button
-          type="button"
-          className={page === "selecoes" ? "active" : ""}
-          onClick={() => setPage("selecoes")}
-        >
+        <button type="button" onClick={() => setPage("selecoes")}>
           Seleções
         </button>
 
-        <button
-          type="button"
-          className={page === "retro" ? "active" : ""}
-          onClick={() => setPage("retro")}
-        >
+        <button type="button" onClick={() => setPage("retro")}>
           Retrô
         </button>
 
-        <button
-          type="button"
-          className={page === "outlet" ? "active" : ""}
-          onClick={() => setPage("outlet")}
-        >
+        <button type="button" onClick={() => setPage("outlet")}>
           Outlet
         </button>
       </nav>
@@ -80,7 +56,8 @@ function Header() {
           className="cart-header-button"
           onClick={abrirCarrinho}
         >
-          <span>Carrinho</span>
+          <span className="cart-text">Carrinho</span>
+
           {quantidadeItens > 0 && (
             <span className="cart-count">{quantidadeItens}</span>
           )}

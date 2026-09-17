@@ -12,26 +12,14 @@ import CartSidebar from "./components/CartSidebar"
 import "./App.css"
 
 function AppContent() {
-  const {
-    page,
-    usuario,
-    setPage
-  } = useStore()
+  const { page, usuario, setPage } = useStore()
 
   if (page === "login") {
-    return (
-      <LoginPage
-        onCadastro={() => setPage("cadastro")}
-      />
-    )
+    return <LoginPage onCadastro={() => setPage("cadastro")} />
   }
 
   if (page === "cadastro") {
-    return (
-      <Cadastro
-        onLogin={() => setPage("login")}
-      />
-    )
+    return <Cadastro onLogin={() => setPage("login")} />
   }
 
   if (usuario?.is_admin) {
@@ -45,45 +33,15 @@ function AppContent() {
   return (
     <div className="app">
       <Header />
-
-      {page === "home" && (
-        <HomePage />
-      )}
-
-      {page === "produtos" && (
-        <ProductsPage categoria="camisas" />
-      )}
-
-      {page === "camisas" && (
-        <ProductsPage categoria="camisas" />
-      )}
-
-      {page === "clubes" && (
-        <ProductsPage categoria="clubes" />
-      )}
-
-      {page === "selecoes" && (
-        <ProductsPage categoria="selecoes" />
-      )}
-
-      {page === "retro" && (
-        <ProductsPage categoria="retro" />
-      )}
-
-      {page === "outlet" && (
-        <ProductsPage categoria="outlet" />
-      )}
-
-      {page === "produto" && (
-        <ProductDetail />
-      )}
-
-      {page === "checkout" && (
-        <CheckoutPage />
-      )}
-
+      {page === "home" && <HomePage />}
+      {page === "camisas" && <ProductsPage categoria="camisas" />}
+      {page === "clubes" && <ProductsPage categoria="clubes" />}
+      {page === "selecoes" && <ProductsPage categoria="selecoes" />}
+      {page === "retro" && <ProductsPage categoria="retro" />}
+      {page === "outlet" && <ProductsPage categoria="outlet" />}
+      {page === "produto" && <ProductDetail />}
+      {page === "checkout" && <CheckoutPage />}
       <Footer />
-
       <CartSidebar />
     </div>
   )

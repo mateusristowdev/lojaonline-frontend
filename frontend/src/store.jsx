@@ -6,37 +6,27 @@ const StoreContext = createContext(null)
 export function StoreProvider({ children }) {
   const [page, setPage] = useState("home")
   const [produtoSelecionado, setProdutoSelecionado] = useState(null)
-
   const [usuario, setUsuario] = useState(() => {
     const usuarioSalvo = localStorage.getItem("usuario")
     return usuarioSalvo ? JSON.parse(usuarioSalvo) : null
   })
-
   const [carrinho, setCarrinho] = useState([])
   const [carrinhoAberto, setCarrinhoAberto] = useState(false)
   const [carregandoCarrinho, setCarregandoCarrinho] = useState(false)
-
-  const [cupom, setCupom] = useState(() => {
-    return localStorage.getItem("cupom") || ""
-  })
-
-  const [cupomAplicado, setCupomAplicado] = useState(() => {
-    return localStorage.getItem("cupomAplicado") === "true"
-  })
+  const [cupom, setCupom] = useState("")
+  const [cupomAplicado, setCupomAplicado] = useState(false)
 
   async function login(dadosUsuario) {
     try {
       if (!dadosUsuario?.email || !dadosUsuario?.senha) {
-        throw new Error("E-mail e senha são obrigatórios.")
+        throw new Error("E-mail e senha são obrigatórios")
       }
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/login`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: dadosUsuario.email,
             senha: dadosUsuario.senha
@@ -47,18 +37,17 @@ export function StoreProvider({ children }) {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.erro || "Erro ao fazer login.")
+        throw new Error(data.erro || "Erro ao fazer login")
       }
 
       if (!data.token) {
-        throw new Error("Token não recebido pelo servidor.")
+        throw new Error("Token não recebido pelo servidor")
       }
 
       localStorage.setItem("token", data.token)
       localStorage.setItem("usuario", JSON.stringify(data.usuario))
       setUsuario(data.usuario)
       setPage("home")
-
       return data
     } catch (error) {
       console.error("Erro no login:", error)
@@ -69,9 +58,6 @@ export function StoreProvider({ children }) {
   function logout() {
     localStorage.removeItem("token")
     localStorage.removeItem("usuario")
-    localStorage.removeItem("cupom")
-    localStorage.removeItem("cupomAplicado")
-
     setUsuario(null)
     setCarrinho([])
     setCarrinhoAberto(false)
@@ -180,8 +166,6 @@ export function StoreProvider({ children }) {
       setCarrinho([])
       setCupom("")
       setCupomAplicado(false)
-      localStorage.removeItem("cupom")
-      localStorage.removeItem("cupomAplicado")
     } catch (error) {
       console.error("Erro ao limpar carrinho:", error)
       throw error
@@ -197,20 +181,16 @@ export function StoreProvider({ children }) {
   }
 
   function aplicarCupom(codigo) {
-    const codigoNormalizado = String(codigo || "").trim().toUpperCase()
+    const codigoNormalizado = codigo.trim().toUpperCase()
 
     if (codigoNormalizado === "MANTO10") {
       setCupom(codigoNormalizado)
       setCupomAplicado(true)
-      localStorage.setItem("cupom", codigoNormalizado)
-      localStorage.setItem("cupomAplicado", "true")
       return true
     }
 
     setCupom("")
     setCupomAplicado(false)
-    localStorage.removeItem("cupom")
-    localStorage.removeItem("cupomAplicado")
     return false
   }
 
@@ -222,24 +202,23 @@ export function StoreProvider({ children }) {
   }
 
   const quantidadeItens = carrinho.reduce(
-    (total, item) => total + Number(item.quantidade || 0),
+    (total, item) => total + Number(item.quantidade),
     0
   )
 
-  const totalCarrinho = carrinho.reduce((total, item) => {
-    const produto = item.produtos || {}
-    return (
+  const totalCarrinho = carrinho.reduce(
+    (total, item) =>
       total +
-      Number(produto.preco || 0) * Number(item.quantidade || 0)
-    )
-  }, 0)
-
-  const descontoCupom = cupomAplicado ? totalCarrinho * 0.1 : 0
-
-  const totalComDesconto = Math.max(
-    0,
-    totalCarrinho - descontoCupom
+      Number(item.produtos?.preco || 0) *
+      Number(item.quantidade || 0),
+    0
   )
+
+  const descontoCupom = cupomAplicado
+    ? totalCarrinho * 0.1
+    : 0
+
+  const totalComDesconto = totalCarrinho - descontoCupom
 
   return (
     <StoreContext.Provider

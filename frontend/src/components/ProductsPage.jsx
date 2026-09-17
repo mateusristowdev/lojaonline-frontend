@@ -33,55 +33,64 @@ function normalizarTexto(valor) {
     .replace(/[\u0300-\u036f]/g, "")
 }
 
-function pertenceCategoria(produto, categoria) {
+function ehSelecao(produto) {
   const tipo = normalizarTexto(produto.tipo)
   const clube = normalizarTexto(produto.clube)
+  const pais = normalizarTexto(produto.pais)
   const liga = normalizarTexto(produto.liga)
+  const nome = normalizarTexto(produto.nome)
+
+  return (
+    tipo.includes("selecao") ||
+    tipo.includes("selecao nacional") ||
+    clube.includes("selecao") ||
+    pais.includes("selecao") ||
+    liga.includes("selecao") ||
+    nome.includes("selecao")
+  )
+}
+
+function ehRetro(produto) {
+  const tipo = normalizarTexto(produto.tipo)
   const nome = normalizarTexto(produto.nome)
   const temporada = normalizarTexto(produto.temporada)
 
+  return (
+    tipo.includes("retro") ||
+    nome.includes("retro") ||
+    temporada.includes("retro")
+  )
+}
+
+function pertenceCategoria(produto, categoria) {
   if (categoria === "camisas") {
     return true
   }
 
-  if (categoria === "clubes") {
-    const ehSelecao =
-      clube.includes("selecao") ||
-      liga.includes("selecao") ||
-      nome.includes("selecao")
-
-    return (
-      clube !== "" &&
-      !ehSelecao &&
-      (
-        tipo.includes("camisa") ||
-        tipo === "" ||
-        clube !== ""
-      )
-    )
+  if (categoria === "selecoes") {
+    return ehSelecao(produto)
   }
 
-  if (categoria === "selecoes") {
+  if (categoria === "clubes") {
     return (
-      clube.includes("selecao") ||
-      liga.includes("selecao") ||
-      nome.includes("selecao")
+      !ehSelecao(produto) &&
+      normalizarTexto(produto.clube) !== ""
     )
   }
 
   if (categoria === "retro") {
-    return (
-      tipo.includes("retro") ||
-      nome.includes("retro") ||
-      temporada.includes("retro")
-    )
+    return ehRetro(produto)
   }
 
   if (categoria === "outlet") {
     const preco = Number(produto.preco || 0)
     const precoOriginal = Number(produto.precoOriginal || 0)
 
-    return precoOriginal > 0 && preco < precoOriginal
+    return (
+      precoOriginal > 0 &&
+      preco > 0 &&
+      preco < precoOriginal
+    )
   }
 
   return true
@@ -113,11 +122,7 @@ function ProductsPage({ categoria = "camisas" }) {
           Array.isArray(dados) ? dados : []
         )
       } catch (error) {
-        console.error(
-          "Erro ao carregar produtos:",
-          error
-        )
-
+        console.error("Erro ao carregar produtos:", error)
         setErro(
           error.message ||
           "Erro ao carregar produtos."
@@ -150,18 +155,11 @@ function ProductsPage({ categoria = "camisas" }) {
   return (
     <main>
       <section className="products-page">
-
         <div className="section-header">
           <div>
             <p>CATÁLOGO</p>
-
-            <h1>
-              {config.titulo}
-            </h1>
-
-            <span>
-              {config.descricao}
-            </span>
+            <h1>{config.titulo}</h1>
+            <span>{config.descricao}</span>
           </div>
 
           <button
@@ -173,52 +171,43 @@ function ProductsPage({ categoria = "camisas" }) {
         </div>
 
         {carregando && (
-          <p>
-            Carregando produtos...
-          </p>
+          <p>Carregando produtos...</p>
         )}
 
         {erro && (
-          <p>
-            {erro}
-          </p>
+          <p>{erro}</p>
         )}
 
         {!carregando &&
           !erro &&
           produtosFiltrados.length > 0 && (
+            <div className="products-grid">
+              {produtosFiltrados.map(produto => (
+                <div
+                  className="product-card"
+                  key={produto.id}
+                  onClick={() => abrirProduto(produto)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="product-image">
+                    {produto.imagem ? (
+                      <img
+                        src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
+                        alt={produto.nome}
+                      />
+                    ) : (
+                      "CAMISA"
+                    )}
+                  </div>
 
-          <div className="products-grid">
+                  <div className="product-info">
+                    <p>
+                      {produto.pais || "BRASIL"}
+                      {" · "}
+                      {produto.liga || "FUTEBOL"}
+                    </p>
 
-            {produtosFiltrados.map(produto => (
-
-              <div
-                className="product-card"
-                key={produto.id}
-                onClick={() =>
-                  abrirProduto(produto)
-                }
-                style={{
-                  cursor: "pointer"
-                }}
-              >
-
-                <div className="product-image">
-
-                  {produto.imagem ? (
-                    <img
-                      src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
-                      alt={produto.nome}
-                    />
-                  ) : (
-                    <span>
-                      CAMISA
-                    </span>
-                  )}
-
-                </div>
-
-                <div className="product-info">
+                    <h3>{produto.nome}</h3>
 
                   <p>
                     {produto.pais || "BRASIL"}
@@ -226,50 +215,29 @@ function ProductsPage({ categoria = "camisas" }) {
                     {produto.liga || "FUTEBOL"}
                   </p>
 
-                  <h3>
-                    {produto.nome}
-                  </h3>
+                    <strong>
+                      R$ {formatarPreco(produto.preco)}
+                    </strong>
 
-                  <span>
-                    {produto.temporada || ""}
-                  </span>
-
-                  <strong>
-                    R$ {formatarPreco(produto.preco)}
-                  </strong>
-
-                  {Number(produto.precoOriginal || 0) >
-                    Number(produto.preco || 0) && (
-
-                    <small>
-                      De R${" "}
-                      {formatarPreco(
-                        produto.precoOriginal
-                      )}
-                    </small>
-
-                  )}
-
+                    {Number(produto.precoOriginal || 0) >
+                      Number(produto.preco || 0) && (
+                      <small>
+                        De R$ {formatarPreco(produto.precoOriginal)}
+                      </small>
+                    )}
+                  </div>
                 </div>
-
-              </div>
-
-            ))}
-
-          </div>
-
-        )}
+              ))}
+            </div>
+          )}
 
         {!carregando &&
           !erro &&
           produtosFiltrados.length === 0 && (
-
-          <p>
-            Nenhum produto encontrado nesta categoria.
-          </p>
-
-        )}
-
+            <p>
+              Nenhum produto encontrado nesta categoria.
+            </p>
+          )}
       </section>
     </main>
   )
