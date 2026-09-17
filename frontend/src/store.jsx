@@ -197,8 +197,6 @@ export function StoreProvider({ children }) {
   function removerCupom() {
     setCupom("")
     setCupomAplicado(false)
-    localStorage.removeItem("cupom")
-    localStorage.removeItem("cupomAplicado")
   }
 
   const quantidadeItens = carrinho.reduce(
