@@ -2,10 +2,10 @@ import { useStore } from "../store"
 import "./ProductDetail.css"
 
 function ProductDetail() {
-
   const {
     produtoSelecionado,
     setPage,
+    setProdutoSelecionado,
     adicionarAoCarrinho
   } = useStore()
 
@@ -16,7 +16,7 @@ function ProductDetail() {
           <h1>Produto não encontrado</h1>
 
           <button
-            onClick={() => setPage("produtos")}
+            onClick={() => setPage("camisas")}
           >
             Voltar para produtos
           </button>
@@ -25,7 +25,7 @@ function ProductDetail() {
     )
   }
 
-    const produto = produtoSelecionado
+  const produto = produtoSelecionado
 
   async function comprar() {
     try {
@@ -40,22 +40,26 @@ function ProductDetail() {
     }
   }
 
-  const preco = Number(produto.preco)
+  function voltarProdutos() {
+    setProdutoSelecionado(null)
+    setPage("camisas")
+  }
+
+  const preco = Number(produto.preco || 0)
     .toFixed(2)
     .replace(".", ",")
 
-  const precoOriginal = Number(produto.precoOriginal)
+  const precoOriginal = Number(produto.precoOriginal || 0)
     .toFixed(2)
     .replace(".", ",")
 
   return (
     <main className="product-detail-page">
-
       <div className="product-detail-container">
 
         <button
           className="product-back"
-          onClick={() => setPage("produtos")}
+          onClick={voltarProdutos}
         >
           ← Voltar para produtos
         </button>
@@ -63,7 +67,6 @@ function ProductDetail() {
         <div className="product-detail-card">
 
           <div className="product-detail-image-container">
-
             {produto.imagem ? (
               <img
                 src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
@@ -75,7 +78,6 @@ function ProductDetail() {
                 CAMISA
               </div>
             )}
-
           </div>
 
           <div className="product-detail-info">
@@ -90,9 +92,11 @@ function ProductDetail() {
               {produto.nome}
             </h1>
 
-            <p className="product-detail-season">
-              Temporada {produto.temporada}
-            </p>
+            {produto.temporada && (
+              <p className="product-detail-season">
+                Temporada {produto.temporada}
+              </p>
+            )}
 
             <div className="product-detail-price">
 
@@ -100,13 +104,12 @@ function ProductDetail() {
                 R$ {preco}
               </strong>
 
-              {produto.precoOriginal &&
-                Number(produto.precoOriginal) >
-                Number(produto.preco) && (
-                  <span>
-                    R$ {precoOriginal}
-                  </span>
-                )}
+              {Number(produto.precoOriginal || 0) >
+                Number(produto.preco || 0) && (
+                <span>
+                  R$ {precoOriginal}
+                </span>
+              )}
 
             </div>
 
@@ -127,6 +130,7 @@ function ProductDetail() {
 
               <div className="product-information-item">
                 <span>Clube</span>
+
                 <strong>
                   {produto.clube || "Não informado"}
                 </strong>
@@ -134,6 +138,7 @@ function ProductDetail() {
 
               <div className="product-information-item">
                 <span>Marca</span>
+
                 <strong>
                   {produto.marca || "Não informado"}
                 </strong>
@@ -141,6 +146,7 @@ function ProductDetail() {
 
               <div className="product-information-item">
                 <span>Cor</span>
+
                 <strong>
                   {produto.cor || "Não informado"}
                 </strong>
@@ -148,6 +154,7 @@ function ProductDetail() {
 
               <div className="product-information-item">
                 <span>Tipo</span>
+
                 <strong>
                   {produto.tipo || "Não informado"}
                 </strong>
@@ -155,6 +162,7 @@ function ProductDetail() {
 
               <div className="product-information-item">
                 <span>Continente</span>
+
                 <strong>
                   {produto.continente || "Não informado"}
                 </strong>
@@ -162,8 +170,9 @@ function ProductDetail() {
 
               <div className="product-information-item">
                 <span>Estoque</span>
+
                 <strong>
-                  {produto.estoque} unidades
+                  {Number(produto.estoque || 0)} unidades
                 </strong>
               </div>
 
@@ -171,7 +180,7 @@ function ProductDetail() {
 
             <div className="product-detail-stock">
 
-              {produto.estoque > 0 ? (
+              {Number(produto.estoque || 0) > 0 ? (
                 <>
                   <span className="stock-dot"></span>
 
@@ -191,11 +200,10 @@ function ProductDetail() {
               className="product-add-button"
               onClick={comprar}
               disabled={
-                !produto.estoque ||
-                produto.estoque <= 0
+                Number(produto.estoque || 0) <= 0
               }
             >
-              {produto.estoque > 0
+              {Number(produto.estoque || 0) > 0
                 ? "ADICIONAR AO CARRINHO"
                 : "PRODUTO ESGOTADO"}
             </button>
@@ -205,7 +213,6 @@ function ProductDetail() {
         </div>
 
       </div>
-
     </main>
   )
 }

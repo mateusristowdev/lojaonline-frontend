@@ -1,9 +1,8 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useStore } from "../store"
 import "./CartSidebar.css"
 
 function CartSidebar() {
-
   const {
     carrinho,
     carrinhoAberto,
@@ -23,20 +22,22 @@ function CartSidebar() {
   const [cupomInput, setCupomInput] = useState(cupom || "")
   const [mensagemCupom, setMensagemCupom] = useState("")
 
+  useEffect(() => {
+    setCupomInput(cupom || "")
+  }, [cupom])
+
   if (!carrinhoAberto) {
     return null
   }
 
   function formatarPreco(valor) {
-    return Number(valor)
+    return Number(valor || 0)
       .toFixed(2)
       .replace(".", ",")
   }
 
   function aplicarCupomCarrinho() {
-
-    const codigo =
-      cupomInput.trim().toUpperCase()
+    const codigo = cupomInput.trim().toUpperCase()
 
     if (!codigo) {
       setMensagemCupom("Digite um cupom.")
@@ -46,13 +47,9 @@ function CartSidebar() {
     const sucesso = aplicarCupom(codigo)
 
     if (sucesso) {
-      setMensagemCupom(
-        "Cupom aplicado com sucesso!"
-      )
+      setMensagemCupom("Cupom aplicado com sucesso!")
     } else {
-      setMensagemCupom(
-        "Cupom inválido."
-      )
+      setMensagemCupom("Cupom inválido.")
     }
   }
 
@@ -63,9 +60,19 @@ function CartSidebar() {
   }
 
   function irParaCheckout() {
+    if (!carrinho.length) return
+
     fecharCarrinho()
     setPage("checkout")
   }
+
+  const subtotal = carrinho.reduce(
+    (total, item) =>
+      total +
+      Number(item.produtos.preco) *
+        Number(item.quantidade),
+    0
+  )
 
   return (
     <>
@@ -75,19 +82,13 @@ function CartSidebar() {
       />
 
       <aside className="cart-sidebar">
-
         <div className="cart-header">
-
           <div>
-
             <span className="cart-label">
               SEU CARRINHO
             </span>
 
-            <h2>
-              Carrinho
-            </h2>
-
+            <h2>Carrinho</h2>
           </div>
 
           <button
@@ -96,20 +97,14 @@ function CartSidebar() {
           >
             ×
           </button>
-
         </div>
 
         {carrinho.length === 0 ? (
-
           <div className="cart-empty">
-
-            <h3>
-              Seu carrinho está vazio
-            </h3>
+            <h3>Seu carrinho está vazio</h3>
 
             <p>
-              Adicione produtos para começar
-              sua compra.
+              Adicione produtos para começar sua compra.
             </p>
 
             <button
@@ -118,132 +113,88 @@ function CartSidebar() {
             >
               CONTINUAR COMPRANDO
             </button>
-
           </div>
-
         ) : (
-
           <>
-
             <div className="cart-items">
+              {carrinho.map(item => {
+                const produto = item.produtos
 
-              {carrinho.map((item) => {
-
-                const produto =
-                  item.produtos
-
-                const subtotal =
+                const subtotalItem =
                   Number(produto.preco) *
                   Number(item.quantidade)
 
                 return (
-
                   <div
                     className="cart-item"
                     key={item.id}
                   >
-
                     <div className="cart-item-image">
-
                       {produto.imagem ? (
-
                         <img
-                          src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}   
+                          src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
                           alt={produto.nome}
                         />
-
                       ) : (
-
-                        <span>
-                          CAMISA
-                        </span>
-
+                        <span>CAMISA</span>
                       )}
-
                     </div>
 
                     <div className="cart-item-content">
-
                       <div className="cart-item-top">
-
                         <div>
-
                           <span className="cart-item-category">
                             {produto.clube ||
                               produto.pais ||
                               "FUTEBOL"}
                           </span>
 
-                          <h3>
-                            {produto.nome}
-                          </h3>
-
+                          <h3>{produto.nome}</h3>
                         </div>
 
                         <button
                           className="cart-remove"
                           onClick={() =>
-                            removerDoCarrinho(
-                              item.id
-                            )
+                            removerDoCarrinho(item.id)
                           }
                         >
                           ×
                         </button>
-
                       </div>
 
                       <strong className="cart-item-price">
-                        R$ {formatarPreco(
-                          produto.preco
-                        )}
+                        R$ {formatarPreco(produto.preco)}
                       </strong>
 
                       <div className="cart-item-bottom">
-
                         <div className="quantity-control">
-
                           <button
                             onClick={() => {
-
-                              if (
-                                item.quantidade > 1
-                              ) {
-
+                              if (item.quantidade > 1) {
                                 alterarQuantidade(
                                   item.id,
                                   item.quantidade - 1
                                 )
-
                               }
-
                             }}
-                            disabled={
-                              item.quantidade <= 1
-                            }
+                            disabled={item.quantidade <= 1}
                           >
                             −
                           </button>
 
-                          <span>
-                            {item.quantidade}
-                          </span>
+                          <span>{item.quantidade}</span>
 
                           <button
                             onClick={() => {
-
                               if (
                                 item.quantidade <
                                 produto.estoque
                               ) {
-
                                 alterarQuantidade(
                                   item.id,
                                   item.quantidade + 1
                                 )
-
                               }
-
                             }}
                             disabled={
                               item.quantidade >=
@@ -252,167 +203,105 @@ function CartSidebar() {
                           >
                             +
                           </button>
-
                         </div>
 
                         <strong className="cart-item-subtotal">
-                          R$ {formatarPreco(
-                            subtotal
-                          )}
+                          R$ {formatarPreco(subtotalItem)}
                         </strong>
-
                       </div>
-
                     </div>
-
                   </div>
-
                 )
-
               })}
-
             </div>
 
-            <div className="cart-footer">
+            <div className="cart-coupon">
+              <label>Cupom de desconto</label>
 
-              <div className="cart-cupom">
-
-                <div className="cupom-input-area">
-
+              {!cupomAplicado ? (
+                <div className="coupon-input">
                   <input
                     type="text"
-                    placeholder="Cupom de desconto"
+                    placeholder="Digite seu cupom"
                     value={cupomInput}
-                    onChange={(event) => {
-
-                      setCupomInput(
-                        event.target.value
-                      )
-
-                      setMensagemCupom("")
-
-                    }}
-                    onKeyDown={(event) => {
-
-                      if (
-                        event.key === "Enter"
-                      ) {
-
+                    onChange={e =>
+                      setCupomInput(e.target.value)
+                    }
+                    onKeyDown={e => {
+                      if (e.key === "Enter") {
                         aplicarCupomCarrinho()
-
                       }
-
                     }}
-                    disabled={cupomAplicado}
                   />
 
-                  {cupomAplicado && (
-
-                    <button
-                      type="button"
-                      className="cupom-remove"
-                      onClick={
-                        removerCupomCarrinho
-                      }
-                    >
-                      ×
-                    </button>
-
-                  )}
-
+                  <button
+                    type="button"
+                    onClick={aplicarCupomCarrinho}
+                  >
+                    APLICAR
+                  </button>
                 </div>
-
-                <button
-                  type="button"
-                  className="cupom-button"
-                  onClick={
-                    cupomAplicado
-                      ? removerCupomCarrinho
-                      : aplicarCupomCarrinho
-                  }
-                >
-                  {cupomAplicado
-                    ? "Remover"
-                    : "Aplicar"}
-                </button>
-
-              </div>
-
-              {mensagemCupom && (
-
-                <div
-                  className={
-                    cupomAplicado
-                      ? "cupom-message success"
-                      : "cupom-message error"
-                  }
-                >
-                  {mensagemCupom}
-                </div>
-
-              )}
-
-              <div className="cart-summary">
-
-                <div>
-
-                  <span>
-                    Produtos
-                  </span>
-
-                  <span>
-                    {quantidadeItens}
-                  </span>
-
-                </div>
-
-                {cupomAplicado && (
-
-                  <div className="cart-discount">
-
-                    <span>
-                      Desconto (10%)
-                    </span>
-
-                    <strong>
-                      - R$ {formatarPreco(
-                        descontoCupom
-                      )}
-                    </strong>
-
+              ) : (
+                <div className="coupon-applied">
+                  <div>
+                    <strong>{cupom}</strong>
+                    <span>10% de desconto</span>
                   </div>
 
-                )}
-
-                <div className="cart-total">
-
-                  <span>
-                    Total
-                  </span>
-
-                  <strong>
-                    R$ {formatarPreco(
-                      totalComDesconto
-                    )}
-                  </strong>
-
+                  <button
+                    type="button"
+                    onClick={removerCupomCarrinho}
+                  >
+                    Remover
+                  </button>
                 </div>
+              )}
 
-              </div>
-
-              <button
-                className="cart-checkout"
-                onClick={irParaCheckout}
-              >
-                FINALIZAR COMPRA
-              </button>
-
+              {mensagemCupom && (
+                <p className="coupon-message">
+                  {mensagemCupom}
+                </p>
+              )}
             </div>
 
+            <div className="cart-summary">
+              <div>
+                <span>Produtos</span>
+                <span>{quantidadeItens}</span>
+              </div>
+
+              <div>
+                <span>Subtotal</span>
+                <strong>
+                  R$ {formatarPreco(subtotal)}
+                </strong>
+              </div>
+
+              {cupomAplicado && (
+                <div className="cart-discount">
+                  <span>Desconto</span>
+                  <strong>
+                    - R$ {formatarPreco(descontoCupom)}
+                  </strong>
+                </div>
+              )}
+
+              <div className="cart-total">
+                <span>Total</span>
+                <strong>
+                  R$ {formatarPreco(totalComDesconto)}
+                </strong>
+              </div>
+            </div>
+
+            <button
+              className="cart-checkout"
+              onClick={irParaCheckout}
+            >
+              FINALIZAR COMPRA
+            </button>
           </>
-
         )}
-
       </aside>
     </>
   )
