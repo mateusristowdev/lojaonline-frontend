@@ -304,7 +304,6 @@ function CheckoutPage() {
 
         <div className="checkout-content">
           <div className="checkout-form">
-
             <section className="checkout-section">
               <h2>1. Dados pessoais</h2>
               <div className="checkout-grid">

@@ -6,7 +6,6 @@ function Header() {
   const {
     usuario,
     logout,
-    page,
     setPage,
     abrirCarrinho,
     quantidadeItens
@@ -59,7 +58,9 @@ function Header() {
           <span className="cart-text">Carrinho</span>
 
           {quantidadeItens > 0 && (
-            <span className="cart-count">{quantidadeItens}</span>
+            <span className="cart-count">
+              {quantidadeItens}
+            </span>
           )}
         </button>
 

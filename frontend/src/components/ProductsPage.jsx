@@ -125,7 +125,7 @@ function ProductsPage({ categoria = "camisas" }) {
         console.error("Erro ao carregar produtos:", error)
         setErro(
           error.message ||
-          "Erro ao carregar produtos."
+          "Erro ao carregar produtos"
         )
       } finally {
         setCarregando(false)
@@ -209,11 +209,9 @@ function ProductsPage({ categoria = "camisas" }) {
 
                     <h3>{produto.nome}</h3>
 
-                  <p>
-                    {produto.pais || "BRASIL"}
-                    {" · "}
-                    {produto.liga || "FUTEBOL"}
-                  </p>
+                    <span>
+                      {produto.temporada || ""}
+                    </span>
 
                     <strong>
                       R$ {formatarPreco(produto.preco)}
