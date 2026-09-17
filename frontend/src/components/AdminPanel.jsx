@@ -349,9 +349,7 @@ function AdminPanel() {
           </button>
 
         </div>
-
         {mostrarFormulario && (
-
           <form
             className="admin-form"
             onSubmit={salvarProduto}

@@ -3,10 +3,10 @@ import { useStore } from "../store"
 import "./Header.css"
 
 function Header() {
-
   const {
     usuario,
     logout,
+    page,
     setPage,
     abrirCarrinho,
     quantidadeItens
@@ -14,44 +14,61 @@ function Header() {
 
   return (
     <header className="header">
-
       <div className="header-logo">
-        <img
-          src={logo}
-          alt="Manto 017"
-        />
+        <img src={logo} alt="Manto 017" />
       </div>
 
       <nav className="header-menu">
-
-        <button onClick={() => setPage("home")}>
+        <button
+          type="button"
+          className={page === "home" ? "active" : ""}
+          onClick={() => setPage("home")}
+        >
           Início
         </button>
 
-        <button onClick={() => setPage("produtos")}>
+        <button
+          type="button"
+          className={page === "camisas" ? "active" : ""}
+          onClick={() => setPage("camisas")}
+        >
           Camisas
         </button>
 
-        <button onClick={() => setPage("produtos")}>
+        <button
+          type="button"
+          className={page === "clubes" ? "active" : ""}
+          onClick={() => setPage("clubes")}
+        >
           Clubes
         </button>
 
-        <button onClick={() => setPage("produtos")}>
+        <button
+          type="button"
+          className={page === "selecoes" ? "active" : ""}
+          onClick={() => setPage("selecoes")}
+        >
           Seleções
         </button>
 
-        <button onClick={() => setPage("produtos")}>
+        <button
+          type="button"
+          className={page === "retro" ? "active" : ""}
+          onClick={() => setPage("retro")}
+        >
           Retrô
         </button>
 
-        <button onClick={() => setPage("produtos")}>
+        <button
+          type="button"
+          className={page === "outlet" ? "active" : ""}
+          onClick={() => setPage("outlet")}
+        >
           Outlet
         </button>
-
       </nav>
 
       <div className="header-user">
-
         {usuario && (
           <span className="header-user-name">
             Olá, {usuario.nome}
@@ -63,14 +80,9 @@ function Header() {
           className="cart-header-button"
           onClick={abrirCarrinho}
         >
-          <span className="cart-text">
-            Carrinho
-          </span>
-
+          <span>Carrinho</span>
           {quantidadeItens > 0 && (
-            <span className="cart-count">
-              {quantidadeItens}
-            </span>
+            <span className="cart-count">{quantidadeItens}</span>
           )}
         </button>
 
@@ -91,9 +103,7 @@ function Header() {
             Entrar
           </button>
         )}
-
       </div>
-
     </header>
   )
 }
