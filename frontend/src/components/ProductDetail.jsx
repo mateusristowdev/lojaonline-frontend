@@ -1,217 +1,220 @@
-import { useEffect, useMemo, useState } from "react"
 import { useStore } from "../store"
-import { apiFetch } from "../services/api"
-import "./ProductsPage.css"
+import "./ProductDetail.css"
 
-const CONFIG_CATEGORIAS = {
-  camisas: {
-    titulo: "CAMISAS",
-    descricao: "Todos os modelos de camisas"
-  },
-  clubes: {
-    titulo: "CLUBES",
-    descricao: "Camisas de clubes"
-  },
-  selecoes: {
-    titulo: "SELEÇÕES",
-    descricao: "Camisas de seleções"
-  },
-  retro: {
-    titulo: "RETRÔ",
-    descricao: "Camisas retrô"
-  },
-  outlet: {
-    titulo: "OUTLET",
-    descricao: "Camisas em promoção"
-  }
-}
+function ProductDetail() {
+  const {
+    produtoSelecionado,
+    setPage,
+    setProdutoSelecionado,
+    adicionarAoCarrinho
+  } = useStore()
 
-function normalizarTexto(valor) {
-  return String(valor || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-}
-
-function pertenceCategoria(produto, categoria) {
-  const tipo = normalizarTexto(produto.tipo)
-  const clube = normalizarTexto(produto.clube)
-  const liga = normalizarTexto(produto.liga)
-  const nome = normalizarTexto(produto.nome)
-  const temporada = normalizarTexto(produto.temporada)
-
-  if (categoria === "camisas") {
-    return tipo.includes("camisa") || tipo === ""
-  }
-
-  if (categoria === "clubes") {
-    const ehSelecao =
-      clube.includes("selecao") ||
-      liga.includes("selecao") ||
-      nome.includes("selecao")
-
+  if (!produtoSelecionado) {
     return (
-      (tipo.includes("camisa") || tipo === "") &&
-      clube !== "" &&
-      !ehSelecao
-    )
-  }
-
-  if (categoria === "selecoes") {
-    return (
-      clube.includes("selecao") ||
-      liga.includes("selecao") ||
-      nome.includes("selecao")
-    )
-  }
-
-  if (categoria === "retro") {
-    return (
-      tipo.includes("retro") ||
-      nome.includes("retro") ||
-      temporada.includes("retro")
-    )
-  }
-
-  if (categoria === "outlet") {
-    const preco = Number(produto.preco || 0)
-    const precoOriginal = Number(produto.precoOriginal || 0)
-
-    return precoOriginal > 0 && preco < precoOriginal
-  }
-
-  return true
-}
-
-function ProductsPage({ categoria = "camisas" }) {
-  const { setPage, setProdutoSelecionado } = useStore()
-
-  const [produtos, setProdutos] = useState([])
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState("")
-
-  const config =
-    CONFIG_CATEGORIAS[categoria] ||
-    CONFIG_CATEGORIAS.camisas
-
-  useEffect(() => {
-    async function carregarProdutos() {
-      try {
-        setCarregando(true)
-        setErro("")
-
-        const dados = await apiFetch("/produtos")
-
-        setProdutos(Array.isArray(dados) ? dados : [])
-      } catch (error) {
-        console.error("Erro ao carregar produtos:", error)
-        setErro(error.message || "Erro ao carregar produtos.")
-      } finally {
-        setCarregando(false)
-      }
-    }
-
-    carregarProdutos()
-  }, [])
-
-  const produtosFiltrados = useMemo(() => {
-    return produtos.filter(produto =>
-      pertenceCategoria(produto, categoria)
-    )
-  }, [produtos, categoria])
-
-  function abrirProduto(produto) {
-    setProdutoSelecionado(produto)
-    setPage("produto")
-  }
-
-  function formatarPreco(valor) {
-    return Number(valor || 0)
-      .toFixed(2)
-      .replace(".", ",")
-  }
-
-  return (
-    <main>
-      <section className="products-page">
-        <div className="section-header">
-          <div>
-            <p>CATÁLOGO</p>
-            <h1>{config.titulo}</h1>
-            <span>{config.descricao}</span>
-          </div>
+      <main className="product-detail-page">
+        <div className="product-not-found">
+          <h1>Produto não encontrado</h1>
 
           <button
-            className="see-all"
-            onClick={() => setPage("home")}
+            onClick={() => setPage("camisas")}
           >
-            ← Voltar
+            Voltar para produtos
           </button>
         </div>
+      </main>
+    )
+  }
 
-        {carregando && <p>Carregando produtos...</p>}
+  const produto = produtoSelecionado
 
-        {erro && <p>{erro}</p>}
+  async function comprar() {
+    try {
+      await adicionarAoCarrinho(produto)
 
-        {!carregando &&
-          !erro &&
-          produtosFiltrados.length > 0 && (
-            <div className="products-grid">
-              {produtosFiltrados.map(produto => (
-                <div
-                  className="product-card"
-                  key={produto.id}
-                  onClick={() => abrirProduto(produto)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="product-image">
-                    {produto.imagem ? (
-                      <img
-                        src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
-                        alt={produto.nome}
-                      />
-                    ) : (
-                      <span>CAMISA</span>
-                    )}
-                  </div>
+      alert("Produto adicionado ao carrinho!")
+    } catch (error) {
+      alert(
+        error.message ||
+        "Não foi possível adicionar o produto ao carrinho."
+      )
+    }
+  }
 
-                  <div className="product-info">
-                    <p>
-                      {produto.pais || "BRASIL"} ·{" "}
-                      {produto.liga || "FUTEBOL"}
-                    </p>
+  function voltarProdutos() {
+    setProdutoSelecionado(null)
+    setPage("camisas")
+  }
 
-                    <h3>{produto.nome}</h3>
+  const preco = Number(produto.preco || 0)
+    .toFixed(2)
+    .replace(".", ",")
 
-                    <span>{produto.temporada || ""}</span>
+  const precoOriginal = Number(produto.precoOriginal || 0)
+    .toFixed(2)
+    .replace(".", ",")
 
-                    <strong>
-                      R$ {formatarPreco(produto.preco)}
-                    </strong>
+  return (
+    <main className="product-detail-page">
+      <div className="product-detail-container">
 
-                    {Number(produto.precoOriginal) >
-                      Number(produto.preco) && (
-                      <small>
-                        De R${" "}
-                        {formatarPreco(produto.precoOriginal)}
-                      </small>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+        <button
+          className="product-back"
+          onClick={voltarProdutos}
+        >
+          ← Voltar para produtos
+        </button>
 
-        {!carregando &&
-          !erro &&
-          produtosFiltrados.length === 0 && (
-            <p>
-              Nenhum produto encontrado nesta categoria.
+        <div className="product-detail-card">
+
+          <div className="product-detail-image-container">
+            {produto.imagem ? (
+              <img
+                src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
+                alt={produto.nome}
+                className="product-detail-image"
+              />
+            ) : (
+              <div className="product-detail-image-empty">
+                CAMISA
+              </div>
+            )}
+          </div>
+
+          <div className="product-detail-info">
+
+            <p className="product-detail-category">
+              {produto.pais || "BRASIL"}
+              {" · "}
+              {produto.liga || "FUTEBOL"}
             </p>
-          )}
-      </section>
+
+            <h1 className="product-detail-title">
+              {produto.nome}
+            </h1>
+
+            {produto.temporada && (
+              <p className="product-detail-season">
+                Temporada {produto.temporada}
+              </p>
+            )}
+
+            <div className="product-detail-price">
+
+              <strong>
+                R$ {preco}
+              </strong>
+
+              {Number(produto.precoOriginal || 0) >
+                Number(produto.preco || 0) && (
+                <span>
+                  R$ {precoOriginal}
+                </span>
+              )}
+
+            </div>
+
+            <div className="product-detail-description">
+
+              <h3>
+                Sobre o produto
+              </h3>
+
+              <p>
+                {produto.descricao ||
+                  "Produto oficial disponível em nossa loja."}
+              </p>
+
+            </div>
+
+            <div className="product-detail-information">
+
+              <div className="product-information-item">
+                <span>Clube</span>
+
+                <strong>
+                  {produto.clube || "Não informado"}
+                </strong>
+              </div>
+
+              <div className="product-information-item">
+                <span>Marca</span>
+
+                <strong>
+                  {produto.marca || "Não informado"}
+                </strong>
+              </div>
+
+              <div className="product-information-item">
+                <span>Cor</span>
+
+                <strong>
+                  {produto.cor || "Não informado"}
+                </strong>
+              </div>
+
+              <div className="product-information-item">
+                <span>Tipo</span>
+
+                <strong>
+                  {produto.tipo || "Não informado"}
+                </strong>
+              </div>
+
+              <div className="product-information-item">
+                <span>Continente</span>
+
+                <strong>
+                  {produto.continente || "Não informado"}
+                </strong>
+              </div>
+
+              <div className="product-information-item">
+                <span>Estoque</span>
+
+                <strong>
+                  {Number(produto.estoque || 0)} unidades
+                </strong>
+              </div>
+
+            </div>
+
+            <div className="product-detail-stock">
+
+              {Number(produto.estoque || 0) > 0 ? (
+                <>
+                  <span className="stock-dot"></span>
+
+                  <span>
+                    Produto disponível em estoque
+                  </span>
+                </>
+              ) : (
+                <span className="stock-unavailable">
+                  Produto esgotado
+                </span>
+              )}
+
+            </div>
+
+            <button
+              className="product-add-button"
+              onClick={comprar}
+              disabled={
+                Number(produto.estoque || 0) <= 0
+              }
+            >
+              {Number(produto.estoque || 0) > 0
+                ? "ADICIONAR AO CARRINHO"
+                : "PRODUTO ESGOTADO"}
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
     </main>
   )
 }
 
-export default ProductsPage
+export default ProductDetail

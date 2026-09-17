@@ -1,38 +1,126 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useStore } from "../store"
 import { apiFetch } from "../services/api"
 import "./ProductsPage.css"
 
-function ProductsPage() {
+const CONFIG_CATEGORIAS = {
+  camisas: {
+    titulo: "CAMISAS",
+    descricao: "Todos os modelos de camisas"
+  },
+  clubes: {
+    titulo: "CLUBES",
+    descricao: "Camisas de clubes"
+  },
+  selecoes: {
+    titulo: "SELEÇÕES",
+    descricao: "Camisas de seleções"
+  },
+  retro: {
+    titulo: "RETRÔ",
+    descricao: "Camisas retrô"
+  },
+  outlet: {
+    titulo: "OUTLET",
+    descricao: "Camisas em promoção"
+  }
+}
 
+function normalizarTexto(valor) {
+  return String(valor || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+}
+
+function pertenceCategoria(produto, categoria) {
+  const tipo = normalizarTexto(produto.tipo)
+  const clube = normalizarTexto(produto.clube)
+  const liga = normalizarTexto(produto.liga)
+  const nome = normalizarTexto(produto.nome)
+  const temporada = normalizarTexto(produto.temporada)
+
+  if (categoria === "camisas") {
+    return true
+  }
+
+  if (categoria === "clubes") {
+    const ehSelecao =
+      clube.includes("selecao") ||
+      liga.includes("selecao") ||
+      nome.includes("selecao")
+
+    return (
+      clube !== "" &&
+      !ehSelecao &&
+      (
+        tipo.includes("camisa") ||
+        tipo === "" ||
+        clube !== ""
+      )
+    )
+  }
+
+  if (categoria === "selecoes") {
+    return (
+      clube.includes("selecao") ||
+      liga.includes("selecao") ||
+      nome.includes("selecao")
+    )
+  }
+
+  if (categoria === "retro") {
+    return (
+      tipo.includes("retro") ||
+      nome.includes("retro") ||
+      temporada.includes("retro")
+    )
+  }
+
+  if (categoria === "outlet") {
+    const preco = Number(produto.preco || 0)
+    const precoOriginal = Number(produto.precoOriginal || 0)
+
+    return precoOriginal > 0 && preco < precoOriginal
+  }
+
+  return true
+}
+
+function ProductsPage({ categoria = "camisas" }) {
   const {
     setPage,
     setProdutoSelecionado
   } = useStore()
 
-
   const [produtos, setProdutos] = useState([])
-
   const [carregando, setCarregando] = useState(true)
-
   const [erro, setErro] = useState("")
+
+  const config =
+    CONFIG_CATEGORIAS[categoria] ||
+    CONFIG_CATEGORIAS.camisas
 
   useEffect(() => {
     async function carregarProdutos() {
       try {
         setCarregando(true)
         setErro("")
-        const dados =
-          await apiFetch("/produtos")
-        setProdutos(dados)
+
+        const dados = await apiFetch("/produtos")
+
+        setProdutos(
+          Array.isArray(dados) ? dados : []
+        )
       } catch (error) {
         console.error(
           "Erro ao carregar produtos:",
           error
         )
+
         setErro(
           error.message ||
-          "Erro ao carregar produtos"
+          "Erro ao carregar produtos."
         )
       } finally {
         setCarregando(false)
@@ -42,9 +130,21 @@ function ProductsPage() {
     carregarProdutos()
   }, [])
 
+  const produtosFiltrados = useMemo(() => {
+    return produtos.filter(produto =>
+      pertenceCategoria(produto, categoria)
+    )
+  }, [produtos, categoria])
+
   function abrirProduto(produto) {
     setProdutoSelecionado(produto)
     setPage("produto")
+  }
+
+  function formatarPreco(valor) {
+    return Number(valor || 0)
+      .toFixed(2)
+      .replace(".", ",")
   }
 
   return (
@@ -53,12 +153,15 @@ function ProductsPage() {
 
         <div className="section-header">
           <div>
-            <p>
-              CATÁLOGO
-            </p>
+            <p>CATÁLOGO</p>
+
             <h1>
-              PRODUTOS
+              {config.titulo}
             </h1>
+
+            <span>
+              {config.descricao}
+            </span>
           </div>
 
           <button
@@ -82,99 +185,94 @@ function ProductsPage() {
         )}
 
         {!carregando &&
-          !erro && (
-            
-            <div className="products-grid">
+          !erro &&
+          produtosFiltrados.length > 0 && (
 
-              {produtos.map((produto) => (
+          <div className="products-grid">
 
-                <div
-                  className="product-card"
-                  key={produto.id}
-                  onClick={() =>
-                    abrirProduto(produto)
-                  }
-                  style={{
-                    cursor: "pointer"
-                  }}
-                >
+            {produtosFiltrados.map(produto => (
 
-                  <div className="product-image">
-                    {produto.imagem ? (
-                      <img
-                        src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
-                        alt={produto.nome}
-                      />
-                    ) : (
-                      "CAMISA"
-                    )}
+              <div
+                className="product-card"
+                key={produto.id}
+                onClick={() =>
+                  abrirProduto(produto)
+                }
+                style={{
+                  cursor: "pointer"
+                }}
+              >
 
-                  </div>
+                <div className="product-image">
 
-                  <div className="product-info">
-
-                    <p>
-
-                      {produto.pais ||
-                        "BRASIL"}
-
-                      {" · "}
-
-                      {produto.liga ||
-                        "FUTEBOL"}
-
-                    </p>
-
-
-                    <h3>
-                      {produto.nome}
-                    </h3>
-
-
+                  {produto.imagem ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
+                      alt={produto.nome}
+                    />
+                  ) : (
                     <span>
-                      {produto.temporada || ""}
+                      CAMISA
                     </span>
-
-
-                    <strong>
-
-                      R${" "}
-
-                      {Number(
-                        produto.preco
-                      )
-                        .toFixed(2)
-                        .replace(".", ",")}
-
-                    </strong>
-
-                  </div>
+                  )}
 
                 </div>
 
-              ))}
+                <div className="product-info">
 
-            </div>
+                  <p>
+                    {produto.pais || "BRASIL"}
+                    {" · "}
+                    {produto.liga || "FUTEBOL"}
+                  </p>
 
-          )}
+                  <h3>
+                    {produto.nome}
+                  </h3>
+
+                  <span>
+                    {produto.temporada || ""}
+                  </span>
+
+                  <strong>
+                    R$ {formatarPreco(produto.preco)}
+                  </strong>
+
+                  {Number(produto.precoOriginal || 0) >
+                    Number(produto.preco || 0) && (
+
+                    <small>
+                      De R${" "}
+                      {formatarPreco(
+                        produto.precoOriginal
+                      )}
+                    </small>
+
+                  )}
+
+                </div>
+
+              </div>
+
+            ))}
+
+          </div>
+
+        )}
 
         {!carregando &&
           !erro &&
-          produtos.length === 0 && (
+          produtosFiltrados.length === 0 && (
 
-            <p>
-              Nenhum produto encontrado.
-            </p>
+          <p>
+            Nenhum produto encontrado nesta categoria.
+          </p>
 
-          )}
+        )}
 
       </section>
-
     </main>
-
   )
-
 }
-
 
 export default ProductsPage
