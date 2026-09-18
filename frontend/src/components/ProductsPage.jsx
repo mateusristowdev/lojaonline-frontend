@@ -34,32 +34,13 @@ function normalizarTexto(valor) {
 }
 
 function ehSelecao(produto) {
-  const tipo = normalizarTexto(produto.tipo)
-  const clube = normalizarTexto(produto.clube)
-  const pais = normalizarTexto(produto.pais)
-  const liga = normalizarTexto(produto.liga)
-  const nome = normalizarTexto(produto.nome)
-
-  return (
-    tipo.includes("selecao") ||
-    tipo.includes("selecao nacional") ||
-    clube.includes("selecao") ||
-    pais.includes("selecao") ||
-    liga.includes("selecao") ||
-    nome.includes("selecao")
-  )
+  const texto = `${produto.tipo || ""} ${produto.clube || ""} ${produto.pais || ""} ${produto.liga || ""} ${produto.nome || ""}`
+  return normalizarTexto(texto).includes("selecao")
 }
 
 function ehRetro(produto) {
-  const tipo = normalizarTexto(produto.tipo)
-  const nome = normalizarTexto(produto.nome)
-  const temporada = normalizarTexto(produto.temporada)
-
-  return (
-    tipo.includes("retro") ||
-    nome.includes("retro") ||
-    temporada.includes("retro")
-  )
+  const texto = `${produto.tipo || ""} ${produto.nome || ""} ${produto.temporada || ""}`
+  return normalizarTexto(texto).includes("retro")
 }
 
 function pertenceCategoria(produto, categoria) {
@@ -72,10 +53,7 @@ function pertenceCategoria(produto, categoria) {
   }
 
   if (categoria === "clubes") {
-    return (
-      !ehSelecao(produto) &&
-      normalizarTexto(produto.clube) !== ""
-    )
+    return !ehSelecao(produto) && normalizarTexto(produto.clube) !== ""
   }
 
   if (categoria === "retro") {
@@ -83,32 +61,22 @@ function pertenceCategoria(produto, categoria) {
   }
 
   if (categoria === "outlet") {
-    const preco = Number(produto.preco || 0)
-    const precoOriginal = Number(produto.precoOriginal || 0)
+    const preco = Number(produto.preco)
+    const precoOriginal = Number(produto.precoOriginal)
 
-    return (
-      precoOriginal > 0 &&
-      preco > 0 &&
-      preco < precoOriginal
-    )
+    return precoOriginal > preco
   }
 
   return true
 }
 
 function ProductsPage({ categoria = "camisas" }) {
-  const {
-    setPage,
-    setProdutoSelecionado
-  } = useStore()
-
+  const { setPage, setProdutoSelecionado } = useStore()
   const [produtos, setProdutos] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState("")
 
-  const config =
-    CONFIG_CATEGORIAS[categoria] ||
-    CONFIG_CATEGORIAS.camisas
+  const config = CONFIG_CATEGORIAS[categoria] || CONFIG_CATEGORIAS.camisas
 
   useEffect(() => {
     async function carregarProdutos() {
@@ -118,15 +86,12 @@ function ProductsPage({ categoria = "camisas" }) {
 
         const dados = await apiFetch("/produtos")
 
-        setProdutos(
-          Array.isArray(dados) ? dados : []
-        )
+        console.log("PRODUTOS:", dados)
+
+        setProdutos(Array.isArray(dados) ? dados : [])
       } catch (error) {
         console.error("Erro ao carregar produtos:", error)
-        setErro(
-          error.message ||
-          "Erro ao carregar produtos"
-        )
+        setErro(error.message || "Erro ao carregar produtos")
       } finally {
         setCarregando(false)
       }
@@ -136,9 +101,22 @@ function ProductsPage({ categoria = "camisas" }) {
   }, [])
 
   const produtosFiltrados = useMemo(() => {
-    return produtos.filter(produto =>
+    const filtrados = produtos.filter(produto =>
       pertenceCategoria(produto, categoria)
     )
+
+    if (categoria === "outlet") {
+      console.table(
+        produtos.map(produto => ({
+          nome: produto.nome,
+          preco: produto.preco,
+          precoOriginal: produto.precoOriginal,
+          outlet: pertenceCategoria(produto, "outlet")
+        }))
+      )
+    }
+
+    return filtrados
   }, [produtos, categoria])
 
   function abrirProduto(produto) {
@@ -147,9 +125,7 @@ function ProductsPage({ categoria = "camisas" }) {
   }
 
   function formatarPreco(valor) {
-    return Number(valor || 0)
-      .toFixed(2)
-      .replace(".", ",")
+    return Number(valor || 0).toFixed(2).replace(".", ",")
   }
 
   return (
@@ -170,72 +146,57 @@ function ProductsPage({ categoria = "camisas" }) {
           </button>
         </div>
 
-        {carregando && (
-          <p>Carregando produtos...</p>
-        )}
+        {carregando && <p>Carregando produtos...</p>}
 
-        {erro && (
-          <p>{erro}</p>
-        )}
+        {erro && <p>{erro}</p>}
 
-        {!carregando &&
-          !erro &&
-          produtosFiltrados.length > 0 && (
-            <div className="products-grid">
-              {produtosFiltrados.map(produto => (
-                <div
-                  className="product-card"
-                  key={produto.id}
-                  onClick={() => abrirProduto(produto)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <div className="product-image">
-                    {produto.imagem ? (
-                      <img
-                        src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
-                        alt={produto.nome}
-                      />
-                    ) : (
-                      "CAMISA"
-                    )}
-                  </div>
-
-                  <div className="product-info">
-                    <p>
-                      {produto.pais || "BRASIL"}
-                      {" · "}
-                      {produto.liga || "FUTEBOL"}
-                    </p>
-
-                    <h3>{produto.nome}</h3>
-
-                    <span>
-                      {produto.temporada || ""}
-                    </span>
-
-                    <strong>
-                      R$ {formatarPreco(produto.preco)}
-                    </strong>
-
-                    {Number(produto.precoOriginal || 0) >
-                      Number(produto.preco || 0) && (
-                      <small>
-                        De R$ {formatarPreco(produto.precoOriginal)}
-                      </small>
-                    )}
-                  </div>
+        {!carregando && !erro && produtosFiltrados.length > 0 && (
+          <div className="products-grid">
+            {produtosFiltrados.map(produto => (
+              <div
+                className="product-card"
+                key={produto.id}
+                onClick={() => abrirProduto(produto)}
+                style={{ cursor: "pointer" }}
+              >
+                <div className="product-image">
+                  {produto.imagem ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL}/uploads/${produto.imagem}`}
+                      alt={produto.nome}
+                    />
+                  ) : (
+                    "CAMISA"
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
 
-        {!carregando &&
-          !erro &&
-          produtosFiltrados.length === 0 && (
-            <p>
-              Nenhum produto encontrado nesta categoria.
-            </p>
-          )}
+                <div className="product-info">
+                  <p>
+                    {produto.pais || "BRASIL"} · {produto.liga || "FUTEBOL"}
+                  </p>
+
+                  <h3>{produto.nome}</h3>
+
+                  <span>{produto.temporada || ""}</span>
+
+                  <strong>
+                    R$ {formatarPreco(produto.preco)}
+                  </strong>
+
+                  {Number(produto.precoOriginal || 0) > Number(produto.preco || 0) && (
+                    <small>
+                      De R$ {formatarPreco(produto.precoOriginal)}
+                    </small>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!carregando && !erro && produtosFiltrados.length === 0 && (
+          <p>Nenhum produto encontrado nesta categoria.</p>
+        )}
       </section>
     </main>
   )

@@ -366,21 +366,15 @@ function CheckoutPage() {
 
                     <button
                       type="button"
+                      className="calcular-frete-button"
                       onClick={calcularFrete}
                       disabled={calculandoFrete || consultandoCep}
-                      style={{
-                        whiteSpace: "nowrap",
-                        cursor:
-                          calculandoFrete || consultandoCep
-                            ? "wait"
-                            : "pointer"
-                      }}
                     >
-                      {consultandoCep
-                        ? "BUSCANDO..."
-                        : calculandoFrete
-                          ? "CALCULANDO..."
-                          : "CALCULAR FRETE"}
+                        {consultandoCep
+                          ? "BUSCANDO..."
+                          : calculandoFrete
+                            ? "CALCULANDO..."
+                            : "CALCULAR FRETE"}
                     </button>
                   </div>
 

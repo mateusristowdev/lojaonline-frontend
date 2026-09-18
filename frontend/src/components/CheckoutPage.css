@@ -864,3 +864,30 @@
   }
 
 }
+
+.calcular-frete-button {
+  height: 46px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 6px;
+  background: #ffb300;
+  color: #111111;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s ease;
+}
+
+.calcular-frete-button:hover {
+  background: #e5a000;
+  transform: translateY(-1px);
+}
+
+.calcular-frete-button:disabled {
+  background: #cccccc;
+  color: #777777;
+  cursor: wait;
+  transform: none;
+}

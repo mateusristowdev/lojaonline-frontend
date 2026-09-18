@@ -70,7 +70,7 @@ function Home() {
 
             <button
               className="banner-button"
-              onClick={() => setPage("produtos")}
+              onClick={() => setPage("camisas")}
             >
               VER CAMISAS
             </button>
@@ -99,7 +99,7 @@ function Home() {
 
             <button
               className="see-all"
-              onClick={() => setPage("produtos")}
+              onClick={() => setPage("camisas")}
             >
               Ver todos →
             </button>
