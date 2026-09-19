@@ -16,7 +16,7 @@ function ProductDetail() {
           <h1>Produto não encontrado</h1>
 
           <button
-            onClick={() => setPage("produtos")}
+            onClick={() => setPage("camisas")}
           >
             Voltar para produtos
           </button>
@@ -55,7 +55,7 @@ function ProductDetail() {
 
         <button
           className="product-back"
-          onClick={() => setPage("produtos")}
+          onClick={() => setPage("camisas")}
         >
           ← Voltar para produtos
         </button>
